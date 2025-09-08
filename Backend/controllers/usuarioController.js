@@ -74,11 +74,11 @@ const confirmar = async (req, res) =>{
 
         if (!usuario) {
             const error = new Error("Token no válido");
-            return res.status(404).json({ msg: error.message });
+        return res.status(404).json({ mensaje: error.message });
         }
 
         // Obtener el resultado
-        res.status(200).json({ msg: 'Cuenta confirmada', usuario });
+    res.status(200).json({ mensaje: 'Cuenta confirmada', usuario });
 
     
     } catch (error) {
@@ -103,13 +103,13 @@ const Autenticar = async (req,res) =>{
 
     if(!usuario){
         const error = new Error("El Usuario no existe");
-        return res.status(404).json({ msg: error.message})
+        return res.status(404).json({ mensaje: error.message})
     }
 
     // Comprobar si el Usuario está confirmado
     if(!usuario.verificado){
         const error = new Error("Tu cuenta no ha sido confirmada")
-        return res.status(403).json({msg: error.message});
+        return res.status(403).json({mensaje: error.message});
     }
 
     // Comprobar la contraseña
@@ -119,7 +119,7 @@ const Autenticar = async (req,res) =>{
         res.json({token: generarJTW(usuario.id)})
     } else {
         const error = new Error("Contraseña incorrecta");
-        return res.status(401).json({msg: error.message});
+        return res.status(401).json({mensaje: error.message});
     } 
 }
 
@@ -146,7 +146,7 @@ const olvidePassword = async (req, res) =>{
 
     // Verifica si el usuario no fue encontrado
     if(resultado.recordset.length === 0){
-        return res.status(404).json({message: 'Usuario no encontrado'});
+        return res.status(404).json({mensaje: 'Usuario no encontrado'});
     }
 
     //Obtener el usuario encontrado mediante el correo
@@ -160,7 +160,7 @@ const olvidePassword = async (req, res) =>{
             .input("correo", sql.NVarChar(255), correo)
             .query('UPDATE Gestion.Usuario SET tokenVerificacion = @token WHERE correo = @correo')
         
-        res.json({msg: 'Hemos enviado un correo con las instrucciones'})
+        res.json({mensaje: 'Hemos enviado un correo con las instrucciones'})
     } catch (error) {
         console.log(error)
     }
@@ -177,9 +177,9 @@ const comprobarToken = async (req, res) =>{
     // Verificar si el token es valido entonces que el usuario exista
     /*En este caso no se pone un Try Catch porque no se hace ningun cambio en la BD solo es para validar si fue encontrado o no*/
     if(tokenValido.recordset.length === 0){
-        res.status(404).json({msg: 'Usuario no encontrado'})
+        res.status(404).json({mensaje: 'Usuario no encontrado'})
     }else{
-        return res.status(200).json({msg: 'Token válido y el usuario existe'})
+        return res.status(200).json({mensaje: 'Token válido y el usuario existe'})
     }
 }
 
@@ -189,7 +189,7 @@ const nuevoPassword = async (req, res) =>{
 
      // Validar que se hayan enviado el token y la nueva contraseña
      if (!token || !password) {
-        return res.status(400).json({ msg: "Token y contraseña son requeridos." });
+        return res.status(400).json({ mensaje: "Token y contraseña son requeridos." });
     }
 
     const pool = await dbConexion();
@@ -199,7 +199,7 @@ const nuevoPassword = async (req, res) =>{
 
     if(usuario.recordset.length === 0){
         const error = new Error('Hubo un error')
-        res.status(400).json({msg: error.message})
+        res.status(400).json({mensaje: error.message})
     }
 
    try {
@@ -214,7 +214,7 @@ const nuevoPassword = async (req, res) =>{
         .input("token", sql.NVarChar(255), token)
         .query('UPDATE Gestion.Usuario SET contraseña = @nuevaContraEncriptada, tokenVerificacion = NULL WHERE tokenVerificacion = @token')
 
-        res.status(200).json({msg: 'Contraseña Actualizada Correntamente'})
+        res.status(200).json({mensaje: 'Contraseña actualizada correctamente'})
 
     } catch (error) {
         console.log(error)

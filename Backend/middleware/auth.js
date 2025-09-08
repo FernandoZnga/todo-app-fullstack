@@ -25,7 +25,7 @@ const checkAuth = async (req, res, next) => {
         
             // Verifica si el usuario no fue encontrado
             if(resultado.recordset.length === 0){
-                return res.status(404).json({message: 'Usuario no encontrado'});
+                return res.status(404).json({mensaje: 'Usuario no encontrado'});
             }
 
             // Obtener el usuario encontrado
@@ -34,14 +34,14 @@ const checkAuth = async (req, res, next) => {
 
 
         } catch (error) {
-            const e = new Error('Token no Válido');
-            res.status(403).json({msg: e.message});
+            const e = new Error('Token no válido');
+            res.status(403).json({mensaje: e.message});
         }
     }    
     
     if(!token){
-        const error = new Error('Token no Válido o inexistente');
-        res.status(403).json({msg: error.message});
+        const error = new Error('Token no válido o inexistente');
+        res.status(403).json({mensaje: error.message});
     }
     next();
 }

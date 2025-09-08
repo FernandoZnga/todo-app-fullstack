@@ -1,219 +1,219 @@
-# TODO App - Task Management System
+# Aplicación TODO - Sistema de Gestión de Tareas
 
-A full-stack task management application built with Node.js, Express, and SQL Server. This application allows users to register, authenticate, and manage their personal tasks with a secure API.
+Una aplicación de gestión de tareas full-stack construida con Node.js, Express y SQL Server. Esta aplicación permite a los usuarios registrarse, autenticarse y gestionar sus tareas personales con una API segura.
 
-## 🚀 Features
+## 🚀 Características
 
-- **User Management**
-  - User registration with email confirmation
-  - Secure login with JWT authentication  
-  - Password recovery functionality
-  - User profile management
+- **Gestión de Usuarios**
+  - Registro de usuarios con confirmación por email
+  - Inicio de sesión seguro con autenticación JWT  
+  - Funcionalidad de recuperación de contraseña
+  - Gestión de perfil de usuario
 
-- **Task Management**
-  - Create and manage personal tasks
-  - Secure task operations with user authentication
-  - Task persistence with SQL Server database
+- **Gestión de Tareas**
+  - Crear y gestionar tareas personales
+  - Operaciones seguras de tareas con autenticación de usuario
+  - Persistencia de tareas con base de datos SQL Server
 
-- **Security**
-  - Password hashing with bcryptjs
-  - JWT-based authentication
-  - Protected routes and middleware
-  - Email confirmation system
+- **Seguridad**
+  - Hash de contraseñas con bcryptjs
+  - Autenticación basada en JWT
+  - Rutas protegidas y middleware
+  - Sistema de confirmación por email
 
-## 📁 Project Structure
+## 📁 Estructura del Proyecto
 
 ```
 proyecto_clase/
-├── Backend/                    # Backend API server
-│   ├── controllers/           # Request handlers
+├── Backend/                    # Servidor API del backend
+│   ├── controllers/           # Manejadores de peticiones
 │   │   ├── usuarioController.js
 │   │   └── tareaController.js
-│   ├── DB/                    # Database configuration
+│   ├── DB/                    # Configuración de la base de datos
 │   │   └── config.js
-│   ├── helpers/               # Utility functions
+│   ├── helpers/               # Funciones de utilidad
 │   │   ├── generarJWT.js
 │   │   └── generarToken.js
-│   ├── middleware/            # Custom middleware
+│   ├── middleware/            # Middleware personalizado
 │   │   ├── auth.js
 │   │   └── usuarioMid.js
-│   ├── models/                # Application models
+│   ├── models/                # Modelos de la aplicación
 │   │   └── Server.js
-│   ├── routes/                # API routes
+│   ├── routes/                # Rutas de la API
 │   │   ├── usuarioRoutes.js
 │   │   └── tareaRoutes.js
-│   ├── app.js                 # Application entry point
-│   ├── package.json           # Dependencies and scripts
-│   ├── .env                   # Environment variables
-│   └── .gitignore            # Git ignore patterns
-├── database-scripts/          # Database setup scripts
-│   ├── DB Script.sql          # Main database schema
-│   ├── SP_Crear_Usuario.sql   # User creation stored procedure
-│   ├── SP_Confirmar_Cuenta.sql # Account confirmation procedure
-│   ├── SP_Crear_Tarea.sql     # Task creation procedure
-│   └── SP_Autenticar_Usuario.sql # User authentication procedure
-└── Instrucciones.txt         # Setup instructions
+│   ├── app.js                 # Punto de entrada de la aplicación
+│   ├── package.json           # Dependencias y scripts
+│   ├── .env                   # Variables de entorno
+│   └── .gitignore            # Patrones de ignorado de Git
+├── database-scripts/          # Scripts de configuración de BD
+│   ├── DB Script.sql          # Esquema principal de la base de datos
+│   ├── SP_Crear_Usuario.sql   # Procedimiento almacenado para crear usuario
+│   ├── SP_Confirmar_Cuenta.sql # Procedimiento de confirmación de cuenta
+│   ├── SP_Crear_Tarea.sql     # Procedimiento de creación de tarea
+│   └── SP_Autenticar_Usuario.sql # Procedimiento de autenticación de usuario
+└── Instrucciones.txt         # Instrucciones de configuración
 ```
 
-## 🛠️ Prerequisites
+## 🛠️ Prerrequisitos
 
-Before running this application, make sure you have:
+Antes de ejecutar esta aplicación, asegúrate de tener:
 
-- **Node.js** (v14 or higher)
-- **SQL Server** (Express, Developer, or full version)
-- **npm** (comes with Node.js)
+- **Node.js** (v14 o superior)
+- **SQL Server** (Express, Developer, o versión completa)
+- **npm** (viene con Node.js)
 
-## ⚙️ Installation
+## ⚙️ Instalación
 
-### 1. Clone the Repository
+### 1. Clonar el Repositorio
 
 ```bash
-git clone <repository-url>
+git clone <url-del-repositorio>
 cd proyecto_clase
 ```
 
-### 2. Install Backend Dependencies
+### 2. Instalar Dependencias del Backend
 
 ```bash
 cd Backend
 npm install
 ```
 
-### 3. Install Additional Dependencies
+### 3. Instalar Dependencias Adicionales
 
-If not already included, install the required packages:
+Si no están ya incluidas, instala los paquetes requeridos:
 
 ```bash
 npm install express bcryptjs cors dotenv jsonwebtoken mssql nodemon nodemailer
 ```
 
-### 4. Database Setup
+### 4. Configuración de la Base de Datos
 
-1. **Create Database**: Execute the scripts in the `database-scripts/` folder in this order:
+1. **Crear Base de Datos**: Ejecuta los scripts en la carpeta `database-scripts/` en este orden:
    ```sql
-   -- 1. Run DB Script.sql to create the database and tables
-   -- 2. Run the stored procedures:
+   -- 1. Ejecutar DB Script.sql para crear la base de datos y tablas
+   -- 2. Ejecutar los procedimientos almacenados:
    --    - SP_Crear_Usuario.sql
    --    - SP_Confirmar_Cuenta.sql  
    --    - SP_Crear_Tarea.sql
    --    - SP_Autenticar_Usuario.sql
    ```
 
-2. **Configure Database Connection**: 
-   Edit `Backend/.env` file with your database credentials:
+2. **Configurar Conexión a la Base de Datos**: 
+   Edita el archivo `Backend/.env` con tus credenciales de base de datos:
    ```env
    PORT=3000
-   DB_USER=your_sql_server_username
-   DB_PASSWORD=your_password
-   DB_SERVER=your_server_instance_name
+   DB_USER=tu_usuario_sql_server
+   DB_PASSWORD=tu_contraseña
+   DB_SERVER=nombre_instancia_servidor
    DB_DATABASE=ToDoDB
-   JWT_SECRET=your_secret_key_here
+   JWT_SECRET=tu_clave_secreta_aqui
    ```
 
-### 5. Environment Configuration
+### 5. Configuración del Entorno
 
-Update the `.env` file in the Backend folder:
+Actualiza el archivo `.env` en la carpeta Backend:
 
 ```env
-# Server Configuration
+# Configuración del Servidor
 PORT=3000
 
-# Database Configuration  
-DB_USER=sa                    # Your SQL Server username
-DB_PASSWORD=your_password     # Your SQL Server password
-DB_SERVER=localhost           # Your SQL Server instance
+# Configuración de la Base de Datos  
+DB_USER=sa                    # Tu nombre de usuario de SQL Server
+DB_PASSWORD=tu_contraseña     # Tu contraseña de SQL Server
+DB_SERVER=localhost           # Tu instancia de SQL Server
 DB_DATABASE=ToDoDB
 
-# JWT Configuration
-JWT_SECRET=your_jwt_secret_key
+# Configuración JWT
+JWT_SECRET=tu_clave_secreta_jwt
 
-# Email Configuration (Optional - for future features)
-EMAIL_USER=your_email@domain.com
-EMAIL_PASS=your_app_password
+# Configuración de Email (Opcional - para características futuras)
+EMAIL_USER=tu_email@dominio.com
+EMAIL_PASS=tu_contraseña_app
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 ```
 
-## 🚀 Running the Application
+## 🚀 Ejecutar la Aplicación
 
-### Development Mode
+### Modo Desarrollo
 ```bash
 cd Backend
 npm run dev
 ```
 
-### Production Mode  
+### Modo Producción  
 ```bash
 cd Backend
 npm start
 ```
 
-The server will start on `http://localhost:3000`
+El servidor se iniciará en `http://localhost:3000`
 
-## 📚 API Endpoints
+## 📚 Endpoints de la API
 
-### User Authentication
+### Autenticación de Usuario
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/usuarios/` | Register new user | No |
-| GET | `/api/usuarios/confirmar/:token` | Confirm user account | No |
-| POST | `/api/usuarios/login` | User login | No |
-| GET | `/api/usuarios/perfil` | Get user profile | Yes |
-| POST | `/api/usuarios/olvide-password` | Request password reset | No |
-| GET | `/api/usuarios/olvide-password/:token` | Verify reset token | No |
-| POST | `/api/usuarios/olvide-password/:token` | Reset password | No |
+| Método | Endpoint | Descripción | Autenticación Requerida |
+|--------|----------|-------------|---------------------------|
+| POST | `/api/usuarios/` | Registrar nuevo usuario | No |
+| GET | `/api/usuarios/confirmar/:token` | Confirmar cuenta de usuario | No |
+| POST | `/api/usuarios/login` | Inicio de sesión de usuario | No |
+| GET | `/api/usuarios/perfil` | Obtener perfil de usuario | Sí |
+| POST | `/api/usuarios/olvide-password` | Solicitar restablecimiento de contraseña | No |
+| GET | `/api/usuarios/olvide-password/:token` | Verificar token de restablecimiento | No |
+| POST | `/api/usuarios/olvide-password/:token` | Restablecer contraseña | No |
 
-### Task Management
+### Gestión de Tareas
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/tareas/` | Create new task | Yes |
-| GET | `/api/tareas/` | Get user tasks | Yes |
+| Método | Endpoint | Descripción | Autenticación Requerida |
+|--------|----------|-------------|---------------------------|
+| POST | `/api/tareas/` | Crear nueva tarea | Sí |
+| GET | `/api/tareas/` | Obtener tareas del usuario | Sí |
 
-## 🔐 Authentication
+## 🔐 Autenticación
 
-The application uses JWT (JSON Web Tokens) for authentication. Include the token in the Authorization header:
+La aplicación usa JWT (JSON Web Tokens) para autenticación. Incluye el token en el header de Authorization:
 
 ```
-Authorization: Bearer your_jwt_token_here
+Authorization: Bearer tu_token_jwt_aqui
 ```
 
-## 🏗️ Technology Stack
+## 🏗️ Stack de Tecnologías
 
-- **Backend Framework**: Express.js
-- **Database**: Microsoft SQL Server
-- **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: bcryptjs
-- **Environment Management**: dotenv
-- **CORS**: cors middleware
-- **Development Tool**: nodemon
+- **Framework Backend**: Express.js
+- **Base de Datos**: Microsoft SQL Server
+- **Autenticación**: JWT (JSON Web Tokens)
+- **Hash de Contraseñas**: bcryptjs
+- **Gestión de Entorno**: dotenv
+- **CORS**: middleware cors
+- **Herramienta de Desarrollo**: nodemon
 
-## 📝 Development Notes
+## 📝 Notas de Desarrollo
 
-- The application uses stored procedures for database operations
-- JWT tokens are used for secure authentication
-- Password hashing ensures secure user credential storage
-- CORS is configured for cross-origin requests
-- Environment variables manage sensitive configuration
+- La aplicación usa procedimientos almacenados para operaciones de base de datos
+- Los tokens JWT se usan para autenticación segura
+- El hash de contraseñas asegura el almacenamiento seguro de credenciales
+- CORS está configurado para peticiones de origen cruzado
+- Las variables de entorno gestionan configuración sensible
 
-## 🤝 Contributing
+## 🤝 Contribuir
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
+1. Haz fork del repositorio
+2. Crea una rama para tu característica (`git checkout -b feature/nueva-caracteristica`)
+3. Haz commit de tus cambios (`git commit -am 'Añadir alguna característica'`)
+4. Haz push a la rama (`git push origin feature/nueva-caracteristica`)
+5. Crea un Pull Request
 
-## 📄 License
+## 📄 Licencia
 
-This project is licensed under the ISC License.
+Este proyecto está licenciado bajo la Licencia ISC.
 
-## 👥 Authors
+## 👥 Autores
 
-- Project developed as part of a class assignment
-- For questions or support, please contact the development team
+- Proyecto desarrollado como parte de una tarea de clase
+- Para preguntas o soporte, contacta al equipo de desarrollo
 
 ---
 
-**Note**: Make sure to configure your SQL Server instance and update the connection strings in the `.env` file before running the application.
+**Nota**: Asegúrate de configurar tu instancia de SQL Server y actualizar las cadenas de conexión en el archivo `.env` antes de ejecutar la aplicación.

@@ -1,0 +1,19 @@
+-- BACKEND --
+
+1. instalar las dependencias de Node -> npm install
+
+2. instalar las demas librerias -> npm install express
+				   npm installa bcryptjs
+				   npm cors 
+				   npm installa dotenv
+				   npm install jsonwebtoken
+				   npm install mssql
+				   npm install nodemon
+
+3. Revisar el archivo de variables de entorno .env y configurarlo
+
+
+-- BASE DE DATOS --
+
+Ejecutar los Scripts de la carpeta DB 
+

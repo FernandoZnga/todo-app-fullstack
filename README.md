@@ -68,180 +68,149 @@ proyecto_clase/
 └── Instrucciones.txt         # Instrucciones de configuración
 ```
 
-## 🛠️ Prerrequisitos
+## 🚀 Quick Start
 
-Antes de ejecutar esta aplicación, asegúrate de tener:
+### 🆕 **Para Empleados Nuevos (Primera Instalación)**
 
-- **Node.js** (v14 o superior)
-- **SQL Server** (Express, Developer, o versión completa)
-- **npm** (viene con Node.js)
+#### Prerrequisitos
+- **Docker** y **Docker Compose** instalados
+- **Git** instalado
+- Al menos **4GB de RAM** disponible
+- Tu usuario debe estar en el grupo `docker` (sin necesidad de `sudo`)
 
-## ⚙️ Instalación
-
-### 🐳 Opción 1: Usando Docker (Recomendado)
-
-**Requisitos previos:**
-- Docker y Docker Compose instalados
-- Al menos 4GB de RAM disponible
+#### Pasos de Instalación (Solo Primera Vez)
 
 ```bash
 # 1. Clonar el repositorio
 git clone <url-del-repositorio>
 cd proyecto_clase
 
-# 2. Levantar todos los servicios con Docker
-sudo docker compose up --build -d
+# 2. Levantar todos los servicios (primera vez toma más tiempo)
+docker compose up --build -d
 
-# 3. Verificar que los servicios estén ejecutándose
-sudo docker compose ps
+# 3. Verificar que todo esté funcionando
+docker compose ps
 
-# 4. Ver logs si es necesario
-sudo docker compose logs api
-sudo docker compose logs sqlserver
+# 4. Verificar logs si hay problemas
+docker compose logs -f api
 ```
 
-**¡Listo!** La aplicación estará disponible en `http://localhost:3000`
+**🎉 ¡Listo!** 
+- **API**: http://localhost:3000
+- **Documentación**: http://localhost:3000/api-docs
+- **Base de datos**: `localhost:1433` (usuario: `sa`, password: `TodoApp2024!`)
 
-#### Comandos útiles de Docker:
+---
 
-```bash
-# Detener todos los servicios
-sudo docker compose down
+### 👨‍💻 **Para Developers Existentes (Uso Diario)**
 
-# Reiniciar servicios
-sudo docker compose restart
-
-# Ver logs de un servicio específico
-sudo docker compose logs -f api
-
-# Ejecutar comandos en el contenedor SQL Server
-sudo docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'TodoApp2024!'
-
-# Reconstruir las imágenes
-sudo docker compose up --build
-```
-
-### 💻 Opción 2: Instalación Manual
-
-#### 1. Clonar el Repositorio
+#### Comandos Diarios
 
 ```bash
-git clone <url-del-repositorio>
+# Iniciar el proyecto (cada mañana)
 cd proyecto_clase
+docker compose up -d
+
+# Verificar que esté corriendo
+docker compose ps
+
+# Al final del día, detener servicios (opcional)
+docker compose down
 ```
 
-#### 2. Instalar Dependencias del Backend
+#### Comandos Útiles para Desarrollo
 
 ```bash
-cd Backend
-npm install
-```
-
-#### 3. Configuración de la Base de Datos
-
-1. **Instalar SQL Server** localmente
-2. **Crear Base de Datos**: Ejecuta el script `docker-init-db.sql` que incluye toda la configuración necesaria
-3. **Configurar Conexión**: Edita el archivo `Backend/.env`:
-   ```env
-   PORT=3000
-   DB_USER=tu_usuario_sql_server
-   DB_PASSWORD=tu_contraseña
-   DB_SERVER=localhost
-   DB_DATABASE=ToDoDB
-   JWT_SECRET=tu_clave_secreta_aqui
-   ```
-
-#### 4. Ejecutar la Aplicación
-
-```bash
-cd Backend
-npm run dev
-```
-
-## 🚀 Ejecutar la Aplicación
-
-### Modo Desarrollo
-```bash
-cd Backend
-npm run dev
-```
-
-### Modo Producción  
-```bash
-cd Backend
-npm start
-```
-
-El servidor se iniciará en `http://localhost:3000`
-
-## 🐳 Configuración Docker
-
-### Servicios Incluidos
-
-El proyecto incluye un setup completo con Docker Compose:
-
-- **📊 API Node.js** (`todo-api`)
-  - Puerto: `3000`
-  - Hot reload habilitado para desarrollo
-  - Variables de entorno preconfiguradas
-
-- **📋 SQL Server** (`todo-sqlserver`)
-  - Puerto: `1433`
-  - Usuario: `sa`
-  - Contraseña: `TodoApp2024!`
-  - Base de datos: `ToDoDB`
-  - Inicialización automática de esquemas y procedimientos
-
-### Variables de Entorno Docker
-
-Las variables están preconfiguradas en `docker-compose.yml`:
-
-```yaml
-environment:
-  - PORT=3000
-  - DB_USER=sa
-  - DB_PASSWORD=TodoApp2024!
-  - DB_SERVER=sqlserver
-  - DB_DATABASE=ToDoDB
-  - JWT_SECRET=mi_clave_secreta_super_segura_2024
-```
-
-### Desarrollo con Docker
-
-```bash
-# Desarrollo con hot reload
-sudo docker compose up -d
-
 # Ver logs en tiempo real
-sudo docker compose logs -f api
+docker compose logs -f api
+
+# Reiniciar solo la API (después de cambios importantes)
+docker compose restart api
+
+# Reconstruir después de cambios en dependencias
+docker compose up --build -d
+
+# Ejecutar pruebas
+docker exec todo-api npm test
 
 # Acceder a la base de datos
-sudo docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'TodoApp2024!'
-
-# Reiniciar solo la API
-sudo docker compose restart api
+docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'TodoApp2024!'
 ```
 
-## 📚 Endpoints de la API
+---
 
-### Autenticación de Usuario
+### 🆘 **Problemas Comunes (Troubleshooting)**
 
-| Método | Endpoint | Descripción | Autenticación Requerida |
-|--------|----------|-------------|---------------------------|
-| POST | `/api/usuarios/` | Registrar nuevo usuario | No |
-| GET | `/api/usuarios/confirmar/:token` | Confirmar cuenta de usuario | No |
-| POST | `/api/usuarios/login` | Inicio de sesión de usuario | No |
-| GET | `/api/usuarios/perfil` | Obtener perfil de usuario | Sí |
-| POST | `/api/usuarios/olvide-password` | Solicitar restablecimiento de contraseña | No |
-| GET | `/api/usuarios/olvide-password/:token` | Verificar token de restablecimiento | No |
-| POST | `/api/usuarios/olvide-password/:token` | Restablecer contraseña | No |
+#### ❌ "Cannot connect to the Docker daemon"
+```bash
+# Verificar que Docker esté corriendo
+sudo systemctl start docker
 
-### Gestión de Tareas
+# Agregar tu usuario al grupo docker (solo primera vez)
+sudo usermod -aG docker $USER
+# Después ejecuta: newgrp docker o reinicia la sesión
+```
 
-| Método | Endpoint | Descripción | Autenticación Requerida |
-|--------|----------|-------------|---------------------------|
-| POST | `/api/tareas/` | Crear nueva tarea | Sí |
-| GET | `/api/tareas/` | Obtener tareas del usuario | Sí |
+#### ❌ "Port 3000 is already in use"
+```bash
+# Ver qué está usando el puerto
+sudo lsof -i :3000
+
+# Detener otros contenedores
+docker compose down
+```
+
+#### ❌ "SQL Server not ready"
+```bash
+# El SQL Server toma tiempo en inicializar (30-60 segundos)
+# Verificar logs:
+docker compose logs sqlserver
+
+# Si persiste, reiniciar:
+docker compose down
+docker compose up -d
+```
+
+#### ❌ "API returns 500 errors"
+```bash
+# Revisar logs de la API
+docker compose logs -f api
+
+# Verificar que la base de datos esté inicializada
+docker compose ps
+```
+
+
+
+## 📚 Documentación de la API
+
+### 📄 **Swagger UI - Documentación Interactiva**
+
+**🌐 Accede a la documentación completa en**: http://localhost:3000/api-docs
+
+La documentación incluye:
+- ✨ **Interfaz interactiva** para probar endpoints
+- 🔐 **Autenticación JWT** integrada
+- 📝 **Ejemplos completos** de requests/responses
+- 🔍 **Validación de esquemas** en tiempo real
+- 📦 **Exportación OpenAPI 3.0**
+
+### 🚦 **Endpoints Disponibles**
+
+#### Autenticación de Usuario (`/api/usuarios`)
+- `POST /api/usuarios` - Registrar nuevo usuario
+- `GET /api/usuarios/confirmar/:token` - Confirmar cuenta 
+- `POST /api/usuarios/login` - Inicio de sesión
+- `GET /api/usuarios/perfil` - Obtener perfil (🔒 Protegido)
+- `POST /api/usuarios/olvide-password` - Solicitar recuperación
+- `GET /api/usuarios/olvide-password/:token` - Verificar token
+- `POST /api/usuarios/olvide-password/:token` - Restablecer contraseña
+
+#### Gestión de Tareas (`/api/tareas`)
+- `POST /api/tareas` - Crear nueva tarea (🔒 Protegido)
+- `GET /api/tareas` - Obtener tareas del usuario (🔒 Protegido)
+
+> **💡 Tip**: Usa la documentación interactiva en `/api-docs` para probar los endpoints directamente desde el navegador.
 
 ## 🔐 Autenticación
 
@@ -426,39 +395,87 @@ Las pruebas utilizan:
 
 ## 🏗️ Stack de Tecnologías
 
-- **Framework Backend**: Express.js
-- **Base de Datos**: Microsoft SQL Server
+### Backend
+- **Framework**: Express.js 4.21.x
+- **Base de Datos**: Microsoft SQL Server 2022
 - **Autenticación**: JWT (JSON Web Tokens)
 - **Hash de Contraseñas**: bcryptjs
-- **Gestión de Entorno**: dotenv
-- **CORS**: middleware cors
-- **Herramienta de Desarrollo**: nodemon
+- **Documentación API**: Swagger/OpenAPI 3.0
+- **Testing**: Jest + Supertest
+- **Desarrollo**: nodemon (hot reload)
 
-## 📝 Notas de Desarrollo
-
-- La aplicación usa procedimientos almacenados para operaciones de base de datos
-- Los tokens JWT se usan para autenticación segura
-- El hash de contraseñas asegura el almacenamiento seguro de credenciales
-- CORS está configurado para peticiones de origen cruzado
-- Las variables de entorno gestionan configuración sensible
-
-## 🤝 Contribuir
-
-1. Haz fork del repositorio
-2. Crea una rama para tu característica (`git checkout -b feature/nueva-caracteristica`)
-3. Haz commit de tus cambios (`git commit -am 'Añadir alguna característica'`)
-4. Haz push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Crea un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la Licencia ISC.
-
-## 👥 Autores
-
-- Proyecto desarrollado como parte de una tarea de clase
-- Para preguntas o soporte, contacta al equipo de desarrollo
+### DevOps & Herramientas
+- **Containerización**: Docker + Docker Compose
+- **CORS**: Habilitado para desarrollo
+- **Variables de Entorno**: dotenv
+- **Gestión de Dependencias**: npm
 
 ---
 
-**Nota**: Asegúrate de configurar tu instancia de SQL Server y actualizar las cadenas de conexión en el archivo `.env` antes de ejecutar la aplicación.
+## 🛠️ Apéndice: Instalación Manual (Sin Docker)
+
+<details>
+<summary>Click para expandir las instrucciones de instalación manual</summary>
+
+### Prerrequisitos
+- Node.js (v14 o superior)
+- SQL Server (Express, Developer, o versión completa)
+- npm (viene con Node.js)
+
+### Pasos
+
+1. **Clonar el repositorio**
+   ```bash
+   git clone <url-del-repositorio>
+   cd proyecto_clase
+   ```
+
+2. **Instalar dependencias**
+   ```bash
+   cd Backend
+   npm install
+   ```
+
+3. **Configurar base de datos**
+   - Instalar SQL Server localmente
+   - Ejecutar script `docker-init-db.sql`
+   - Crear archivo `Backend/.env`:
+     ```env
+     PORT=3000
+     DB_USER=tu_usuario_sql_server
+     DB_PASSWORD=tu_contraseña
+     DB_SERVER=localhost
+     DB_DATABASE=ToDoDB
+     JWT_SECRET=tu_clave_secreta_aqui
+     ```
+
+4. **Ejecutar aplicación**
+   ```bash
+   npm run dev  # Desarrollo
+   npm start    # Producción
+   ```
+
+</details>
+
+---
+
+## 🤝 Contribuir
+
+1. Fork del repositorio
+2. Crea branch (`git checkout -b feature/nueva-caracteristica`)
+3. Commit cambios (`git commit -am 'Agregar nueva característica'`)
+4. Push al branch (`git push origin feature/nueva-caracteristica`)
+5. Crear Pull Request
+
+## 📄 Licencia
+
+ISC License - Ver archivo LICENSE para más detalles.
+
+## 👥 Equipo
+
+Desarrollado como proyecto académico.  
+Para soporte: contacta al equipo de desarrollo.
+
+---
+
+**🚀 ¡Happy Coding!** - Recuerda revisar la [documentación interactiva](http://localhost:3000/api-docs) después de iniciar la aplicación.

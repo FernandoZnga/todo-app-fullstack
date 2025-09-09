@@ -73,10 +73,18 @@ const dbMocks = {
   mockSuccessfulTaskCreation,
   mockRecordset,
   
-  // Mock completo de la conexión de base de datos
+// Mock completo de la conexión de base de datos
   mockDbConexion: () => {
     const poolInstance = mockPool();
     return Promise.resolve(poolInstance);
+  },
+
+  // ✨ Mock para module.exports del DB/config.js
+  mockDbModule: () => {
+    const poolInstance = mockPool();
+    return {
+      dbConexion: jest.fn().mockResolvedValue(poolInstance)
+    };
   },
   
   // Configurar mocks para diferentes escenarios

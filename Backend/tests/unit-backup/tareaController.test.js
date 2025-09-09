@@ -22,6 +22,7 @@ describe('TareaController - Pruebas Unitarias', () => {
     // Configurar objetos request y response mock
     req = {
       body: {},
+      query: {}, // ✨ Agregar query object para evitar errores
       usuario: {
         id: 1,
         nombreUsuario: 'Test Usuario',
@@ -183,7 +184,8 @@ describe('TareaController - Pruebas Unitarias', () => {
 
       // Assert
       expect(requestMock.input).toHaveBeenCalledWith('usuarioId', expect.anything(), usuarioId);
-      expect(requestMock.execute).toHaveBeenCalledWith('Gestion.SP_Obtener_Tareas_Usuario');
+      expect(requestMock.input).toHaveBeenCalledWith('filtro', expect.anything(), 'all'); // Default filter
+      expect(requestMock.execute).toHaveBeenCalledWith('Gestion.SP_Obtener_Tareas_Usuario_Filtros');
     });
 
     it('debería manejar errores del servidor', async () => {

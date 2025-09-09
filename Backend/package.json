@@ -5,12 +5,13 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest",
+    "test": "npm run test:all",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration",
-    "test:all": "jest --coverage --verbose"
+    "test:coverage": "jest --coverage --testTimeout=30000",
+    "test:smoke": "jest tests/smoke --testTimeout=5000",
+    "test:integration": "jest tests/integration --testTimeout=30000",
+    "test:all": "npm run test:smoke && npm run test:integration",
+    "test:quick": "npm run test:smoke"
   },
   "keywords": ["todo", "tareas", "nodejs", "express", "jwt", "sql-server"],
   "author": "Equipo de Desarrollo",

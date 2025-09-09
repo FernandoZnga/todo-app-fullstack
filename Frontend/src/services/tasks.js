@@ -15,13 +15,13 @@ export const tasksService = {
 
   // Complete a task with comment
   completeTask: async (taskId, comment) => {
-    const response = await api.put(`/tareas/${taskId}/complete`, { comentario: comment })
+    const response = await api.put(`/tareas/${taskId}/completar`, { comentario: comment })
     return response.data
   },
 
   // Soft delete a task with comment
   deleteTask: async (taskId, comment) => {
-    const response = await api.delete(`/tareas/${taskId}`, { data: { comentario: comment } })
+    const response = await api.delete(`/tareas/${taskId}/borrar`, { data: { comentario: comment } })
     return response.data
   },
 

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import tasksService from '../services/tasks'
 import toast from 'react-hot-toast'
-import { Plus, CheckSquare, Clock, User, Calendar, Search, Filter } from 'lucide-react'
+import { Plus, CheckSquare, Clock, User, Calendar, Search, Filter, MoreVertical, Eye, CheckCircle, Trash2 } from 'lucide-react'
+import CompleteTaskModal from '../components/CompleteTaskModal'
+import DeleteTaskModal from '../components/DeleteTaskModal'
+import TaskDetailsModal from '../components/TaskDetailsModal'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -11,18 +14,43 @@ const Dashboard = () => {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newTask, setNewTask] = useState({ titulo: '', descripcion: '' })
   const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all') // all, completed, pending
+  const [filter, setFilter] = useState('all') // all, pending, completed, deleted, all_including_deleted
   const [createLoading, setCreateLoading] = useState(false)
+  
+  // Modal states
+  const [completeModalOpen, setCompleteModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
+  const [activeDropdown, setActiveDropdown] = useState(null)
 
   useEffect(() => {
     loadTasks()
-  }, [])
+  }, [filter]) // Reload when filter changes
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.relative')) {
+        setActiveDropdown(null)
+      }
+    }
+
+    if (activeDropdown) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [activeDropdown])
 
   const loadTasks = async () => {
     try {
       setLoading(true)
-      const response = await tasksService.getTasks()
+      const response = await tasksService.getTasks(filter)
       setTasks(response.tareas || [])
+      setActiveDropdown(null) // Close any open dropdowns
     } catch (error) {
       console.error('Error loading tasks:', error)
       toast.error('Error al cargar las tareas')
@@ -53,14 +81,68 @@ const Dashboard = () => {
     }
   }
 
+  // Task action handlers
+  const handleCompleteTask = (task) => {
+    if (task.completada) {
+      toast.error('Esta tarea ya está completada')
+      return
+    }
+    if (task.borrada) {
+      toast.error('No se puede completar una tarea borrada')
+      return
+    }
+    setSelectedTask(task)
+    setCompleteModalOpen(true)
+    setActiveDropdown(null)
+  }
+
+  const handleDeleteTask = (task) => {
+    if (task.borrada) {
+      toast.error('Esta tarea ya está borrada')
+      return
+    }
+    setSelectedTask(task)
+    setDeleteModalOpen(true)
+    setActiveDropdown(null)
+  }
+
+  const handleViewDetails = (task) => {
+    setSelectedTask(task)
+    setDetailsModalOpen(true)
+    setActiveDropdown(null)
+  }
+
+  const handleModalClose = () => {
+    setCompleteModalOpen(false)
+    setDeleteModalOpen(false)
+    setDetailsModalOpen(false)
+    setSelectedTask(null)
+  }
+
+  const handleTaskUpdated = () => {
+    loadTasks()
+  }
+
+  // Client-side search filtering (backend handles state filtering)
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    if (filter === 'completed') return matchesSearch && task.completada
-    if (filter === 'pending') return matchesSearch && !task.completada
     return matchesSearch
   })
+
+  // Calculate stats for all tasks (not filtered)
+  const getTaskStats = () => {
+    // For stats, we need all tasks regardless of current filter
+    const allTasksForStats = filter === 'all' || filter === 'all_including_deleted' ? tasks : []
+    return {
+      completed: allTasksForStats.filter(t => t.completada && !t.borrada).length,
+      pending: allTasksForStats.filter(t => !t.completada && !t.borrada).length,
+      deleted: allTasksForStats.filter(t => t.borrada).length,
+      total: allTasksForStats.length
+    }
+  }
+
+  const stats = getTaskStats()
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -91,7 +173,7 @@ const Dashboard = () => {
               ¡Hola, {user?.nombreUsuario}!
             </h1>
             <p className="text-primary-600 mt-1">
-              Tienes {tasks.filter(t => !t.completada).length} tareas pendientes
+              Tienes {stats.pending} tareas pendientes
             </p>
           </div>
           
@@ -110,7 +192,7 @@ const Dashboard = () => {
         <div className="card text-center">
           <CheckSquare className="w-8 h-8 text-success-500 mx-auto mb-2" />
           <h3 className="text-2xl font-bold text-primary-900">
-            {tasks.filter(t => t.completada).length}
+            {stats.completed}
           </h3>
           <p className="text-primary-600">Completadas</p>
         </div>
@@ -118,17 +200,17 @@ const Dashboard = () => {
         <div className="card text-center">
           <Clock className="w-8 h-8 text-warning-500 mx-auto mb-2" />
           <h3 className="text-2xl font-bold text-primary-900">
-            {tasks.filter(t => !t.completada).length}
+            {stats.pending}
           </h3>
           <p className="text-primary-600">Pendientes</p>
         </div>
         
         <div className="card text-center">
-          <User className="w-8 h-8 text-primary-500 mx-auto mb-2" />
+          <Trash2 className="w-8 h-8 text-red-500 mx-auto mb-2" />
           <h3 className="text-2xl font-bold text-primary-900">
-            {tasks.length}
+            {stats.deleted}
           </h3>
-          <p className="text-primary-600">Total</p>
+          <p className="text-primary-600">Borradas</p>
         </div>
       </div>
 
@@ -152,9 +234,11 @@ const Dashboard = () => {
               onChange={(e) => setFilter(e.target.value)}
               className="input pl-10 pr-8"
             >
-              <option value="all">Todas</option>
+              <option value="all">Activas</option>
               <option value="pending">Pendientes</option>
               <option value="completed">Completadas</option>
+              <option value="deleted">Borradas</option>
+              <option value="all_including_deleted">Todas (inc. borradas)</option>
             </select>
             <Filter className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
           </div>
@@ -184,49 +268,125 @@ const Dashboard = () => {
             )}
           </div>
         ) : (
-          filteredTasks.map((task) => (
-            <div key={task.id} className="card-hover">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <div className={`w-4 h-4 rounded-full border-2 ${
-                      task.completada 
-                        ? 'bg-success-500 border-success-500'
-                        : 'border-primary-300'
-                    }`}>
-                      {task.completada && (
-                        <CheckSquare className="w-3 h-3 text-white" />
+          filteredTasks.map((task) => {
+            const taskStatus = task.borrada ? 'deleted' : task.completada ? 'completed' : 'pending'
+            const statusColors = {
+              pending: 'border-l-yellow-400 bg-yellow-50',
+              completed: 'border-l-green-400 bg-green-50',
+              deleted: 'border-l-red-400 bg-red-50'
+            }
+            
+            return (
+              <div key={task.id} className={`card-hover border-l-4 ${statusColors[taskStatus]}`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        task.completada 
+                          ? 'bg-success-500 border-success-500'
+                          : task.borrada
+                          ? 'bg-red-500 border-red-500'
+                          : 'border-primary-300'
+                      }`}>
+                        {task.completada && (
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        )}
+                        {task.borrada && (
+                          <Trash2 className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                      <h3 className={`text-lg font-medium ${
+                        task.completada ? 'text-green-700 line-through' : 
+                        task.borrada ? 'text-red-700 line-through' :
+                        'text-primary-900'
+                      }`}>
+                        {task.titulo}
+                      </h3>
+                      {task.borrada && (
+                        <span className="px-2 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                          Borrada
+                        </span>
+                      )}
+                      {task.completada && !task.borrada && (
+                        <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                          Completada
+                        </span>
                       )}
                     </div>
-                    <h3 className={`text-lg font-medium ${
-                      task.completada ? 'text-primary-500 line-through' : 'text-primary-900'
+                    
+                    <p className={`text-sm mb-3 ${
+                      task.completada || task.borrada ? 'text-primary-400' : 'text-primary-600'
                     }`}>
-                      {task.titulo}
-                    </h3>
+                      {task.descripcion}
+                    </p>
+                    
+                    <div className="flex items-center space-x-4 text-sm text-primary-500">
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        Creada: {formatDate(task.fechaCreacion)}
+                      </div>
+                      {task.completada && task.fechaCompletada && (
+                        <div className="flex items-center text-green-600">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Completada: {formatDate(task.fechaCompletada)}
+                        </div>
+                      )}
+                      {task.borrada && task.fechaBorrado && (
+                        <div className="flex items-center text-red-600">
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Borrada: {formatDate(task.fechaBorrado)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
-                  <p className={`text-sm mb-3 ${
-                    task.completada ? 'text-primary-400' : 'text-primary-600'
-                  }`}>
-                    {task.descripcion}
-                  </p>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-primary-500">
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      Creada: {formatDate(task.fechaCreacion)}
-                    </div>
-                    {task.fechaActualizacion !== task.fechaCreacion && (
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        Actualizada: {formatDate(task.fechaActualizacion)}
+                  {/* Action Menu */}
+                  <div className="relative ml-4">
+                    <button
+                      onClick={() => setActiveDropdown(activeDropdown === task.id ? null : task.id)}
+                      className="p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+                    >
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                    
+                    {activeDropdown === task.id && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-primary-100 z-10">
+                        <div className="py-1">
+                          <button
+                            onClick={() => handleViewDetails(task)}
+                            className="w-full px-4 py-2 text-left text-sm text-primary-700 hover:bg-primary-50 flex items-center"
+                          >
+                            <Eye className="w-4 h-4 mr-3" />
+                            Ver Detalles
+                          </button>
+                          
+                          {!task.completada && !task.borrada && (
+                            <button
+                              onClick={() => handleCompleteTask(task)}
+                              className="w-full px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50 flex items-center"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-3" />
+                              Completar Tarea
+                            </button>
+                          )}
+                          
+                          {!task.borrada && (
+                            <button
+                              onClick={() => handleDeleteTask(task)}
+                              className="w-full px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50 flex items-center"
+                            >
+                              <Trash2 className="w-4 h-4 mr-3" />
+                              Borrar Tarea
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
 
@@ -299,6 +459,27 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Task Action Modals */}
+      <CompleteTaskModal
+        isOpen={completeModalOpen}
+        onClose={handleModalClose}
+        task={selectedTask}
+        onTaskUpdated={handleTaskUpdated}
+      />
+      
+      <DeleteTaskModal
+        isOpen={deleteModalOpen}
+        onClose={handleModalClose}
+        task={selectedTask}
+        onTaskUpdated={handleTaskUpdated}
+      />
+      
+      <TaskDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={handleModalClose}
+        task={selectedTask}
+      />
     </div>
   )
 }

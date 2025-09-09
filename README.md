@@ -25,6 +25,10 @@ Una aplicación de gestión de tareas full-stack construida con Node.js, Express
 
 - **Gestión de Tareas**
   - Crear y gestionar tareas personales
+  - **✨ Completar tareas con comentario obligatorio**
+  - **✨ Borrar tareas (soft delete) con comentario obligatorio**
+  - **✨ Sistema avanzado de filtros** (pendientes, completadas, borradas)
+  - **✨ Historial completo** con fechas de creación, completado y borrado
   - Operaciones seguras de tareas con autenticación de usuario
   - Persistencia de tareas con base de datos SQL Server
 
@@ -61,9 +65,13 @@ proyecto_clase/
 │   └── .gitignore            # Patrones de ignorado de Git
 ├── database-scripts/          # Scripts de configuración de BD
 │   ├── DB Script.sql          # Esquema principal de la base de datos
+│   ├── actualizar-base-datos.sql # Script de actualización con nuevas funcionalidades
 │   ├── SP_Crear_Usuario.sql   # Procedimiento almacenado para crear usuario
 │   ├── SP_Confirmar_Cuenta.sql # Procedimiento de confirmación de cuenta
 │   ├── SP_Crear_Tarea.sql     # Procedimiento de creación de tarea
+│   ├── SP_Completar_Tarea.sql # ✨ Procedimiento para completar tareas
+│   ├── SP_Borrar_Tarea.sql    # ✨ Procedimiento para borrar tareas (soft delete)
+│   ├── SP_Obtener_Tareas_Usuario_Filtros.sql # ✨ Procedimiento con filtros avanzados
 │   └── SP_Autenticar_Usuario.sql # Procedimiento de autenticación de usuario
 └── Instrucciones.txt         # Instrucciones de configuración
 ```
@@ -208,7 +216,9 @@ La documentación incluye:
 
 #### Gestión de Tareas (`/api/tareas`)
 - `POST /api/tareas` - Crear nueva tarea (🔒 Protegido)
-- `GET /api/tareas` - Obtener tareas del usuario (🔒 Protegido)
+- `GET /api/tareas` - Obtener tareas del usuario con filtros (🔒 Protegido)
+- **✨ `PUT /api/tareas/:id/completar`** - Completar tarea con comentario (🔒 Protegido)
+- **✨ `DELETE /api/tareas/:id/borrar`** - Borrar tarea con comentario (🔒 Protegido)
 
 > **💡 Tip**: Usa la documentación interactiva en `/api-docs` para probar los endpoints directamente desde el navegador.
 
@@ -261,8 +271,45 @@ curl -X POST http://localhost:3000/api/tareas \
 
 #### 5. Obtener tareas del usuario
 ```bash
+# Obtener todas las tareas activas (por defecto)
 curl -X GET http://localhost:3000/api/tareas \
   -H "Authorization: Bearer TU_TOKEN_JWT"
+
+# Obtener solo tareas pendientes
+curl -X GET "http://localhost:3000/api/tareas?filter=pending" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+
+# Obtener solo tareas completadas
+curl -X GET "http://localhost:3000/api/tareas?filter=completed" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+
+# Obtener solo tareas borradas
+curl -X GET "http://localhost:3000/api/tareas?filter=deleted" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+
+# Obtener todas las tareas (incluyendo borradas)
+curl -X GET "http://localhost:3000/api/tareas?filter=all_including_deleted" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+#### 6. ✨ Completar una tarea (requiere comentario)
+```bash
+curl -X PUT http://localhost:3000/api/tareas/1/completar \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -d '{
+    "comentario": "Tarea completada exitosamente. Se cumplió con todos los objetivos planteados."
+  }'
+```
+
+#### 7. ✨ Borrar una tarea (requiere comentario)
+```bash
+curl -X DELETE http://localhost:3000/api/tareas/1/borrar \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -d '{
+    "comentario": "Tarea cancelada debido a cambios en las prioridades del proyecto."
+  }'
 ```
 
 ## 🧪 Pruebas (Testing)
@@ -400,6 +447,10 @@ Las pruebas utilizan:
 - **Base de Datos**: Microsoft SQL Server 2022
 - **Autenticación**: JWT (JSON Web Tokens)
 - **Hash de Contraseñas**: bcryptjs
+- **✨ Gestión Avanzada de Tareas**: Completar/Borrar con comentarios obligatorios
+- **✨ Sistema de Filtros**: Múltiples filtros para tareas (pendientes, completadas, borradas)
+- **✨ Borrado Lógico**: Soft delete con historial completo
+- **✨ Auditoria**: Fechas y comentarios de todas las operaciones
 - **Documentación API**: Swagger/OpenAPI 3.0
 - **Testing**: Jest + Supertest
 - **Desarrollo**: nodemon (hot reload)

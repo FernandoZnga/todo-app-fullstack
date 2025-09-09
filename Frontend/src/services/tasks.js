@@ -1,9 +1,9 @@
 import api from './api'
 
 export const tasksService = {
-  // Get all tasks for the current user
-  getTasks: async () => {
-    const response = await api.get('/tareas')
+  // Get tasks for the current user with filters
+  getTasks: async (filter = 'all') => {
+    const response = await api.get(`/tareas?filter=${filter}`)
     return response.data
   },
 
@@ -13,15 +13,21 @@ export const tasksService = {
     return response.data
   },
 
-  // Update task (if backend supports it in the future)
-  updateTask: async (taskId, taskData) => {
-    const response = await api.put(`/tareas/${taskId}`, taskData)
+  // Complete a task with comment
+  completeTask: async (taskId, comment) => {
+    const response = await api.put(`/tareas/${taskId}/complete`, { comentario: comment })
     return response.data
   },
 
-  // Delete task (if backend supports it in the future)  
-  deleteTask: async (taskId) => {
-    const response = await api.delete(`/tareas/${taskId}`)
+  // Soft delete a task with comment
+  deleteTask: async (taskId, comment) => {
+    const response = await api.delete(`/tareas/${taskId}`, { data: { comentario: comment } })
+    return response.data
+  },
+
+  // Update task (if backend supports it in the future)
+  updateTask: async (taskId, taskData) => {
+    const response = await api.put(`/tareas/${taskId}`, taskData)
     return response.data
   }
 }

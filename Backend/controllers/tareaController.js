@@ -41,16 +41,18 @@ const agregarTarea = async (req, res) =>{
 const obtenerTarea = async (req,res) =>{
     const {usuario} = req;
     const usuarioId = usuario.id;
+    const { filter = 'all' } = req.query;
 
     try {
         // Abrir la conexión 
         const pool = await dbConexion();
 
-        // Ejecutar el SP para obtener tareas del usuario
+        // Ejecutar el SP para obtener tareas del usuario con filtros
         const resultado = await pool
             .request()
             .input("usuarioId", sql.INT, usuarioId)
-            .execute("Gestion.SP_Obtener_Tareas_Usuario");
+            .input("filtro", sql.NVARCHAR(50), filter)
+            .execute("Gestion.SP_Obtener_Tareas_Usuario_Filtros");
 
         const tareas = resultado.recordset;
 
@@ -65,7 +67,85 @@ const obtenerTarea = async (req,res) =>{
     }
 }
 
+const completarTarea = async (req, res) => {
+    const { id } = req.params;
+    const { comentario } = req.body;
+    const { usuario } = req;
+    const usuarioId = usuario.id;
+
+    // Validar que se incluya un comentario
+    if (!comentario || !comentario.trim()) {
+        return res.status(400).json({error: "El comentario es requerido para completar la tarea"});
+    }
+
+    try {
+        // Abrir la conexión 
+        const pool = await dbConexion();
+
+        // Ejecutar el SP para completar la tarea
+        const resultado = await pool
+            .request()
+            .input("tareaId", sql.INT, parseInt(id))
+            .input("usuarioId", sql.INT, usuarioId)
+            .input("comentario", sql.NVARCHAR(500), comentario.trim())
+            .output("Mensaje", sql.NVARCHAR(200))
+            .execute("Gestion.SP_Completar_Tarea");
+
+        const mensaje = resultado.output.Mensaje;
+        
+        if (mensaje === 'Tarea completada exitosamente') {
+            res.status(200).json({mensaje});
+        } else {
+            res.status(400).json({error: mensaje});
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: "Error al completar la tarea"});
+    }
+};
+
+const borrarTarea = async (req, res) => {
+    const { id } = req.params;
+    const { comentario } = req.body;
+    const { usuario } = req;
+    const usuarioId = usuario.id;
+
+    // Validar que se incluya un comentario
+    if (!comentario || !comentario.trim()) {
+        return res.status(400).json({error: "El comentario es requerido para borrar la tarea"});
+    }
+
+    try {
+        // Abrir la conexión 
+        const pool = await dbConexion();
+
+        // Ejecutar el SP para borrar la tarea
+        const resultado = await pool
+            .request()
+            .input("tareaId", sql.INT, parseInt(id))
+            .input("usuarioId", sql.INT, usuarioId)
+            .input("comentario", sql.NVARCHAR(500), comentario.trim())
+            .output("Mensaje", sql.NVARCHAR(200))
+            .execute("Gestion.SP_Borrar_Tarea");
+
+        const mensaje = resultado.output.Mensaje;
+        
+        if (mensaje === 'Tarea borrada exitosamente') {
+            res.status(200).json({mensaje});
+        } else {
+            res.status(400).json({error: mensaje});
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: "Error al borrar la tarea"});
+    }
+};
+
 module.exports = {
     agregarTarea,
-    obtenerTarea
+    obtenerTarea,
+    completarTarea,
+    borrarTarea
 }

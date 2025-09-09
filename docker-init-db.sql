@@ -1,5 +1,6 @@
 -- Script de Inicialización Completa de la Base de Datos TODO App
 -- Este script se ejecuta automáticamente cuando se crea el contenedor SQL Server
+-- Incluye todas las funcionalidades avanzadas: completar/borrar tareas con comentarios y filtros
 
 -- Paso 1: Crear la base de datos y esquemas
 USE master;
@@ -23,7 +24,8 @@ BEGIN
 END
 GO
 
--- Paso 2: Crear tablas
+-- Paso 2: Crear tablas con todas las columnas (incluyendo funcionalidades avanzadas)
+
 -- Tabla Usuario
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Usuario' AND xtype='U')
 BEGIN
@@ -39,7 +41,7 @@ BEGIN
 END
 GO
 
--- Tabla Tarea
+-- Tabla Tarea (con todas las columnas avanzadas desde el inicio)
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Tarea' AND xtype='U')
 BEGIN
     CREATE TABLE Gestion.Tarea (
@@ -50,12 +52,18 @@ BEGIN
         completada BIT DEFAULT 0,
         fechaCreacion DATETIME DEFAULT GETDATE(),
         fechaActualizacion DATETIME DEFAULT GETDATE(),
+        -- ✨ Columnas para funcionalidades avanzadas
+        borrada BIT DEFAULT 0,
+        fechaCompletada DATETIME NULL,
+        fechaBorrado DATETIME NULL,
+        comentarioCompletar NVARCHAR(500) NULL,
+        comentarioBorrado NVARCHAR(500) NULL,
         FOREIGN KEY (usuarioId) REFERENCES Gestion.Usuario(id)
     );
 END
 GO
 
--- Paso 3: Crear procedimientos almacenados
+-- Paso 3: Crear todos los procedimientos almacenados
 
 -- Procedimiento para crear usuario
 IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SP_Agregar_Usuario')
@@ -174,7 +182,169 @@ BEGIN
 END
 GO
 
--- Procedimiento para obtener tareas de un usuario
+-- ✨ Procedimiento para completar tarea (con comentario obligatorio)
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SP_Completar_Tarea')
+    DROP PROCEDURE Gestion.SP_Completar_Tarea;
+GO
+
+CREATE PROCEDURE Gestion.SP_Completar_Tarea
+    @tareaId INT,
+    @usuarioId INT,
+    @comentario NVARCHAR(500),
+    @Mensaje NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar que la tarea existe y pertenece al usuario
+        IF NOT EXISTS (
+            SELECT 1 FROM Gestion.Tarea 
+            WHERE id = @tareaId 
+            AND usuarioId = @usuarioId 
+            AND borrada = 0
+        )
+        BEGIN
+            SET @Mensaje = 'Tarea no encontrada o no autorizada';
+            RETURN;
+        END
+
+        -- Verificar que la tarea no esté ya completada
+        IF EXISTS (
+            SELECT 1 FROM Gestion.Tarea 
+            WHERE id = @tareaId 
+            AND completada = 1
+        )
+        BEGIN
+            SET @Mensaje = 'La tarea ya está completada';
+            RETURN;
+        END
+
+        -- Completar la tarea
+        UPDATE Gestion.Tarea 
+        SET 
+            completada = 1,
+            comentarioCompletar = @comentario,
+            fechaCompletada = GETDATE(),
+            fechaActualizacion = GETDATE()
+        WHERE id = @tareaId 
+        AND usuarioId = @usuarioId;
+
+        SET @Mensaje = 'Tarea completada exitosamente';
+
+    END TRY
+    BEGIN CATCH
+        SET @Mensaje = 'Error al completar la tarea: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+-- ✨ Procedimiento para borrar tarea (soft delete con comentario obligatorio)
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SP_Borrar_Tarea')
+    DROP PROCEDURE Gestion.SP_Borrar_Tarea;
+GO
+
+CREATE PROCEDURE Gestion.SP_Borrar_Tarea
+    @tareaId INT,
+    @usuarioId INT,
+    @comentario NVARCHAR(500),
+    @Mensaje NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar que la tarea existe y pertenece al usuario
+        IF NOT EXISTS (
+            SELECT 1 FROM Gestion.Tarea 
+            WHERE id = @tareaId 
+            AND usuarioId = @usuarioId 
+            AND borrada = 0
+        )
+        BEGIN
+            SET @Mensaje = 'Tarea no encontrada o no autorizada';
+            RETURN;
+        END
+
+        -- Verificar que la tarea no esté ya borrada
+        IF EXISTS (
+            SELECT 1 FROM Gestion.Tarea 
+            WHERE id = @tareaId 
+            AND borrada = 1
+        )
+        BEGIN
+            SET @Mensaje = 'La tarea ya está borrada';
+            RETURN;
+        END
+
+        -- Borrar la tarea (soft delete)
+        UPDATE Gestion.Tarea 
+        SET 
+            borrada = 1,
+            comentarioBorrado = @comentario,
+            fechaBorrado = GETDATE(),
+            fechaActualizacion = GETDATE()
+        WHERE id = @tareaId 
+        AND usuarioId = @usuarioId;
+
+        SET @Mensaje = 'Tarea borrada exitosamente';
+
+    END TRY
+    BEGIN CATCH
+        SET @Mensaje = 'Error al borrar la tarea: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+-- ✨ Procedimiento para obtener tareas con filtros avanzados
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SP_Obtener_Tareas_Usuario_Filtros')
+    DROP PROCEDURE Gestion.SP_Obtener_Tareas_Usuario_Filtros;
+GO
+
+CREATE PROCEDURE Gestion.SP_Obtener_Tareas_Usuario_Filtros
+    @usuarioId INT,
+    @filtro NVARCHAR(50) = 'all' -- 'all', 'pending', 'completed', 'deleted', 'all_including_deleted'
+AS
+BEGIN
+    BEGIN TRY
+        SELECT 
+            id,
+            titulo,
+            descripcion,
+            completada,
+            borrada,
+            fechaCreacion,
+            fechaActualizacion,
+            fechaCompletada,
+            fechaBorrado,
+            comentarioCompletar,
+            comentarioBorrado
+        FROM Gestion.Tarea
+        WHERE usuarioId = @usuarioId
+        AND (
+            (@filtro = 'all' AND borrada = 0) OR
+            (@filtro = 'pending' AND completada = 0 AND borrada = 0) OR
+            (@filtro = 'completed' AND completada = 1 AND borrada = 0) OR
+            (@filtro = 'deleted' AND borrada = 1) OR
+            (@filtro = 'all_including_deleted' AND 1 = 1)
+        )
+        ORDER BY 
+            CASE 
+                WHEN @filtro = 'deleted' THEN fechaBorrado 
+                WHEN @filtro = 'completed' THEN fechaCompletada
+                ELSE fechaActualizacion 
+            END DESC;
+
+    END TRY
+    BEGIN CATCH
+        -- En caso de error, retornar conjunto vacío
+        SELECT 
+            id, titulo, descripcion, completada, borrada,
+            fechaCreacion, fechaActualizacion, fechaCompletada, fechaBorrado,
+            comentarioCompletar, comentarioBorrado
+        FROM Gestion.Tarea
+        WHERE 1 = 0; -- No retorna filas
+    END CATCH
+END;
+GO
+
+-- Procedimiento básico para obtener tareas (legacy - mantener por compatibilidad)
 IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SP_Obtener_Tareas_Usuario')
     DROP PROCEDURE Gestion.SP_Obtener_Tareas_Usuario;
 GO
@@ -185,12 +355,27 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
-    SELECT id, titulo, descripcion, completada, fechaCreacion, fechaActualizacion
-    FROM Gestion.Tarea
-    WHERE usuarioId = @usuarioId
-    ORDER BY fechaCreacion DESC;
+    -- Usar el procedimiento avanzado con filtro 'all' por defecto
+    EXEC Gestion.SP_Obtener_Tareas_Usuario_Filtros @usuarioId, 'all';
 END
 GO
 
-PRINT 'Base de datos ToDoDB inicializada correctamente con todas las tablas y procedimientos almacenados.';
+PRINT '🎉 Base de datos ToDoDB inicializada correctamente con TODAS las funcionalidades avanzadas:';
+PRINT '   ✅ Esquema Gestion creado';
+PRINT '   ✅ Tablas Usuario y Tarea con columnas completas';
+PRINT '   ✅ 8 stored procedures creados:';
+PRINT '      - SP_Agregar_Usuario';
+PRINT '      - SP_Obtener_Usuario_Por_Token';
+PRINT '      - SP_Autenticar_Usuario';
+PRINT '      - SP_Agregar_Tarea';
+PRINT '      - SP_Completar_Tarea (✨ con comentarios)';
+PRINT '      - SP_Borrar_Tarea (✨ soft delete con comentarios)';
+PRINT '      - SP_Obtener_Tareas_Usuario_Filtros (✨ filtros avanzados)';
+PRINT '      - SP_Obtener_Tareas_Usuario (legacy)';
+PRINT '   ✅ Funcionalidades incluidas:';
+PRINT '      - Completar tareas con comentario obligatorio';
+PRINT '      - Borrar tareas (soft delete) con comentario obligatorio';
+PRINT '      - Filtros: all, pending, completed, deleted, all_including_deleted';
+PRINT '      - Auditoría completa con fechas y comentarios';
+PRINT '   🚀 ¡Lista para usar sin scripts adicionales!';
 GO

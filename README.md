@@ -95,7 +95,7 @@ proyecto_clase/
 ```bash
 # 1. Clonar el repositorio
 git clone <url-del-repositorio>
-cd proyecto_clase
+cd todo-app-fullstack
 
 # 2. ✨ Las variables de entorno se configuran automáticamente desde .env.docker
 # 3. Levantar todos los servicios (primera vez toma más tiempo)

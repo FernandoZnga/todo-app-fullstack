@@ -1,5 +1,7 @@
 const express = require('express');
+const cors = require('cors');
 const {dbConexion} = require('../DB/config');
+const { swaggerUi, swaggerSpec } = require('../config/swagger');
 
 class Server {
 
@@ -23,7 +25,19 @@ class Server {
     // Métodos //
 
     middlewares(){
+        // CORS
+        this.app.use(cors());
+        
+        // Parse JSON
         this.app.use(express.json());
+        
+        // Swagger Documentation
+        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+        
+        // Redirect root to API documentation
+        this.app.get('/', (req, res) => {
+            res.redirect('/api-docs');
+        });
     }
 
     // Conectar con la BD

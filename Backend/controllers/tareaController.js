@@ -24,7 +24,7 @@ const agregarTarea = async (req, res) =>{
             .input("titulo", sql.NVARCHAR(100), titulo)
             .input("descripcion", sql.NVARCHAR(500), descripcion)
             .output("Mensaje", sql.VARCHAR(200))
-            .execute("SP_Agregar_Tarea");
+            .execute("Gestion.SP_Agregar_Tarea");
 
         // Obtener el mensaje de salida
         const mensaje = resultado.output.mensaje || "Tarea agregada correctamente";
@@ -38,7 +38,31 @@ const agregarTarea = async (req, res) =>{
 
 }
 
-const obtenerTarea = (req,res) =>{
+const obtenerTarea = async (req,res) =>{
+    const {usuario} = req;
+    const usuarioId = usuario.id;
+
+    try {
+        // Abrir la conexión 
+        const pool = await dbConexion();
+
+        // Ejecutar el SP para obtener tareas del usuario
+        const resultado = await pool
+            .request()
+            .input("usuarioId", sql.INT, usuarioId)
+            .execute("Gestion.SP_Obtener_Tareas_Usuario");
+
+        const tareas = resultado.recordset;
+
+        res.status(200).json({
+            mensaje: `Se encontraron ${tareas.length} tarea(s)`,
+            tareas: tareas
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: "Error al obtener las tareas"})
+    }
 }
 
 module.exports = {

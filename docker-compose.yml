@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # Base de datos SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: todo-sqlserver
+    hostname: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=TodoApp2024!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./docker-init-db.sql:/docker-entrypoint-initdb.d/docker-init-db.sql:ro
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P TodoApp2024! -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Servicio para inicializar la base de datos
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: todo-db-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./docker-init-db.sql:/init.sql:ro
+    networks:
+      - todo-network
+    command: >
+      sh -c "
+        echo 'Esperando a que SQL Server esté completamente listo...' &&
+        sleep 30 &&
+        echo 'Ejecutando script de inicialización...' &&
+        /opt/mssql-tools18/bin/sqlcmd -C -S sqlserver -U sa -P TodoApp2024! -i /init.sql &&
+        echo 'Base de datos inicializada correctamente'
+      "
+    restart: "no"
+
+  # API Node.js
+  api:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: todo-api
+    environment:
+      - PORT=3000
+      - DB_USER=sa
+      - DB_PASSWORD=TodoApp2024!
+      - DB_SERVER=sqlserver
+      - DB_DATABASE=ToDoDB
+      - JWT_SECRET=mi_clave_secreta_super_segura_2024
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      # Montar el código fuente para hot reload en desarrollo
+      - ./Backend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    networks:
+      - todo-network
+    command: npm run dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/usuarios"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Red para comunicación entre contenedores
+networks:
+  todo-network:
+    driver: bridge
+
+# Volúmenes para persistir datos
+volumes:
+  sqlserver_data:
+    driver: local

@@ -1,0 +1,93 @@
+# Dependencias
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de desarrollo
+.env.local
+.env.development.local
+.env.test.local
+
+# Archivos del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Logs
+logs
+*.log
+
+# Cobertura de pruebas
+coverage
+.nyc_output
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directorio de instrumentación de librerías
+lib-cov
+
+# Directorio de coverage de herramientas como istanbul
+coverage
+
+# Nyc test coverage
+.nyc_output
+
+# Almacenamiento intermedio de Grunt
+.grunt
+
+# Directorio de dependencias de Bower
+bower_components
+
+# Archivos de configuración de node-waf
+.lock-wscript
+
+# Addons binarios compilados
+build/Release
+
+# Directorio de caché opcional de npm
+.npm
+
+# Caché opcional de ESLint
+.eslintcache
+
+# Historial REPL opcional
+.node_repl_history
+
+# Output de 'npm pack'
+*.tgz
+
+# Archivo de integridad de Yarn
+.yarn-integrity
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# README y documentación
+README.md
+*.md
+
+# Archivos temporales
+tmp/
+temp/

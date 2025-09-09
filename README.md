@@ -65,73 +65,84 @@ Antes de ejecutar esta aplicación, asegúrate de tener:
 
 ## ⚙️ Instalación
 
-### 1. Clonar el Repositorio
+### 🐳 Opción 1: Usando Docker (Recomendado)
+
+**Requisitos previos:**
+- Docker y Docker Compose instalados
+- Al menos 4GB de RAM disponible
+
+```bash
+# 1. Clonar el repositorio
+git clone <url-del-repositorio>
+cd proyecto_clase
+
+# 2. Levantar todos los servicios con Docker
+sudo docker compose up --build -d
+
+# 3. Verificar que los servicios estén ejecutándose
+sudo docker compose ps
+
+# 4. Ver logs si es necesario
+sudo docker compose logs api
+sudo docker compose logs sqlserver
+```
+
+**¡Listo!** La aplicación estará disponible en `http://localhost:3000`
+
+#### Comandos útiles de Docker:
+
+```bash
+# Detener todos los servicios
+sudo docker compose down
+
+# Reiniciar servicios
+sudo docker compose restart
+
+# Ver logs de un servicio específico
+sudo docker compose logs -f api
+
+# Ejecutar comandos en el contenedor SQL Server
+sudo docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'TodoApp2024!'
+
+# Reconstruir las imágenes
+sudo docker compose up --build
+```
+
+### 💻 Opción 2: Instalación Manual
+
+#### 1. Clonar el Repositorio
 
 ```bash
 git clone <url-del-repositorio>
 cd proyecto_clase
 ```
 
-### 2. Instalar Dependencias del Backend
+#### 2. Instalar Dependencias del Backend
 
 ```bash
 cd Backend
 npm install
 ```
 
-### 3. Instalar Dependencias Adicionales
+#### 3. Configuración de la Base de Datos
 
-Si no están ya incluidas, instala los paquetes requeridos:
-
-```bash
-npm install express bcryptjs cors dotenv jsonwebtoken mssql nodemon nodemailer
-```
-
-### 4. Configuración de la Base de Datos
-
-1. **Crear Base de Datos**: Ejecuta los scripts en la carpeta `database-scripts/` en este orden:
-   ```sql
-   -- 1. Ejecutar DB Script.sql para crear la base de datos y tablas
-   -- 2. Ejecutar los procedimientos almacenados:
-   --    - SP_Crear_Usuario.sql
-   --    - SP_Confirmar_Cuenta.sql  
-   --    - SP_Crear_Tarea.sql
-   --    - SP_Autenticar_Usuario.sql
-   ```
-
-2. **Configurar Conexión a la Base de Datos**: 
-   Edita el archivo `Backend/.env` con tus credenciales de base de datos:
+1. **Instalar SQL Server** localmente
+2. **Crear Base de Datos**: Ejecuta el script `docker-init-db.sql` que incluye toda la configuración necesaria
+3. **Configurar Conexión**: Edita el archivo `Backend/.env`:
    ```env
    PORT=3000
    DB_USER=tu_usuario_sql_server
    DB_PASSWORD=tu_contraseña
-   DB_SERVER=nombre_instancia_servidor
+   DB_SERVER=localhost
    DB_DATABASE=ToDoDB
    JWT_SECRET=tu_clave_secreta_aqui
    ```
 
-### 5. Configuración del Entorno
+#### 4. Ejecutar la Aplicación
 
-Actualiza el archivo `.env` en la carpeta Backend:
-
-```env
-# Configuración del Servidor
-PORT=3000
-
-# Configuración de la Base de Datos  
-DB_USER=sa                    # Tu nombre de usuario de SQL Server
-DB_PASSWORD=tu_contraseña     # Tu contraseña de SQL Server
-DB_SERVER=localhost           # Tu instancia de SQL Server
-DB_DATABASE=ToDoDB
-
-# Configuración JWT
-JWT_SECRET=tu_clave_secreta_jwt
-
-# Configuración de Email (Opcional - para características futuras)
-EMAIL_USER=tu_email@dominio.com
-EMAIL_PASS=tu_contraseña_app
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
+```bash
+cd Backend
+npm run dev
 ```
 
 ## 🚀 Ejecutar la Aplicación
@@ -149,6 +160,54 @@ npm start
 ```
 
 El servidor se iniciará en `http://localhost:3000`
+
+## 🐳 Configuración Docker
+
+### Servicios Incluidos
+
+El proyecto incluye un setup completo con Docker Compose:
+
+- **📊 API Node.js** (`todo-api`)
+  - Puerto: `3000`
+  - Hot reload habilitado para desarrollo
+  - Variables de entorno preconfiguradas
+
+- **📋 SQL Server** (`todo-sqlserver`)
+  - Puerto: `1433`
+  - Usuario: `sa`
+  - Contraseña: `TodoApp2024!`
+  - Base de datos: `ToDoDB`
+  - Inicialización automática de esquemas y procedimientos
+
+### Variables de Entorno Docker
+
+Las variables están preconfiguradas en `docker-compose.yml`:
+
+```yaml
+environment:
+  - PORT=3000
+  - DB_USER=sa
+  - DB_PASSWORD=TodoApp2024!
+  - DB_SERVER=sqlserver
+  - DB_DATABASE=ToDoDB
+  - JWT_SECRET=mi_clave_secreta_super_segura_2024
+```
+
+### Desarrollo con Docker
+
+```bash
+# Desarrollo con hot reload
+sudo docker compose up -d
+
+# Ver logs en tiempo real
+sudo docker compose logs -f api
+
+# Acceder a la base de datos
+sudo docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'TodoApp2024!'
+
+# Reiniciar solo la API
+sudo docker compose restart api
+```
 
 ## 📚 Endpoints de la API
 
@@ -177,6 +236,51 @@ La aplicación usa JWT (JSON Web Tokens) para autenticación. Incluye el token e
 
 ```
 Authorization: Bearer tu_token_jwt_aqui
+```
+
+### Ejemplos de Uso
+
+#### 1. Registrar un nuevo usuario
+```bash
+curl -X POST http://localhost:3000/api/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombreUsuario": "Juan Pérez",
+    "correo": "juan@example.com",
+    "contraseña": "miPassword123"
+  }'
+```
+
+#### 2. Confirmar cuenta
+```bash
+curl -X GET "http://localhost:3000/api/usuarios/confirmar/TOKEN_AQUI"
+```
+
+#### 3. Iniciar sesión
+```bash
+curl -X POST http://localhost:3000/api/usuarios/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "correo": "juan@example.com",
+    "contraseña": "miPassword123"
+  }'
+```
+
+#### 4. Crear una tarea (requiere autenticación)
+```bash
+curl -X POST http://localhost:3000/api/tareas \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -d '{
+    "titulo": "Completar proyecto",
+    "descripcion": "Terminar la implementación de la API REST"
+  }'
+```
+
+#### 5. Obtener tareas del usuario
+```bash
+curl -X GET http://localhost:3000/api/tareas \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
 ```
 
 ## 🏗️ Stack de Tecnologías

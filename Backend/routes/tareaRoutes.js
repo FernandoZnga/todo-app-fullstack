@@ -6,6 +6,6 @@ const router = Router();
 
 // Rutas Privadas
 router.post('/',checkAuth, agregarTarea)
-router.get('/', obtenerTarea)
+router.get('/',checkAuth, obtenerTarea)
 
 module.exports = router;

@@ -34,7 +34,7 @@ const registrarUsuario = async (req,res) =>{
             .input("contraseña", sql.VarChar(255), contraEncriptada)
             .input('tokenVerificacion', sql.NVarChar, tokenVerificacion)
             .output("Mensaje", sql.VarChar(200)) // Para recibir el mensaje de salida
-            .execute("SP_Agregar_Usuario");
+            .execute("Gestion.SP_Agregar_Usuario");
 
             // Verificar si el mensaje es de error o éxito
             const mensaje = result.output.Mensaje; // El mensaje de salida del SP
@@ -68,7 +68,7 @@ const confirmar = async (req, res) =>{
         // Consulta para obtener el usuario por token
         const resultado = await pool.request()
             .input('tokenVerificacion', sql.NVarChar, token)
-            .execute('SP_Obtener_Usuario_Por_Token')
+            .execute('Gestion.SP_Obtener_Usuario_Por_Token')
             
         const usuario = resultado.recordset[0];
 
@@ -97,7 +97,7 @@ const Autenticar = async (req,res) =>{
     // Comprobar si el Usuario existe
     const resultado = await pool.request()
         .input("correo", sql.NVarChar(255), correo)
-        .execute("SP_Autenticar_Usuario");
+        .execute("Gestion.SP_Autenticar_Usuario");
 
     const usuario = resultado.recordset[0];
 

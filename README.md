@@ -82,7 +82,7 @@ proyecto_clase/
 
 ## 🚀 Quick Start
 
-### 🆕 **Para Empleados Nuevos (Primera Instalación)**
+### 🆕 **Si lo vas a correr por primera vez (Primera Instalación)**
 
 #### Prerrequisitos
 - **Docker** y **Docker Compose** instalados
@@ -122,7 +122,7 @@ docker compose logs -f api
 
 ---
 
-### 👨‍💻 **Para Developers Existentes (Uso Diario)**
+### 👨‍💻 **Ya lo corriste localmente al menos una vez (Uso cotidiano)**
 
 #### Comandos Diarios
 

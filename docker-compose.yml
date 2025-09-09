@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de datos SQL Server
   sqlserver:
@@ -51,14 +49,10 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
     container_name: todo-api
+    env_file:
+      - .env.docker
     environment:
-      - PORT=3000
-      - DB_USER=sa
-      - DB_PASSWORD=TodoApp2024!
-      - DB_SERVER=sqlserver
-      - DB_DATABASE=ToDoDB
-      - JWT_SECRET=mi_clave_secreta_super_segura_2024
-      - NODE_ENV=development
+      - DB_SERVER=sqlserver  # Override para Docker network
     ports:
       - "3000:3000"
     volumes:
@@ -85,8 +79,10 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
     container_name: todo-frontend
+    env_file:
+      - .env.docker
     environment:
-      - VITE_API_URL=http://localhost:3000/api
+      - VITE_API_URL=http://localhost:3000/api  # Override para Docker
     ports:
       - "4000:5173"
     volumes:

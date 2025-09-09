@@ -61,8 +61,12 @@ proyecto_clase/
 │   │   └── tareaRoutes.js
 │   ├── app.js                 # Punto de entrada de la aplicación
 │   ├── package.json           # Dependencias y scripts
-│   ├── .env                   # Variables de entorno
+│   ├── .env.example           # ✨ Template para desarrollo manual
 │   └── .gitignore            # Patrones de ignorado de Git
+├── Frontend/                   # Cliente React (interfaz de usuario)
+├── .env.docker                 # ✨ Variables de entorno para Docker (recomendado)
+├── docker-compose.yml          # ✨ Configuración de contenedores
+├── CONFIGURACION.md            # ✨ Guía de configuración de entornos
 ├── database-scripts/          # Scripts de configuración de BD
 │   ├── DB Script.sql          # Esquema principal de la base de datos
 │   ├── actualizar-base-datos.sql # Script de actualización con nuevas funcionalidades
@@ -93,13 +97,14 @@ proyecto_clase/
 git clone <url-del-repositorio>
 cd proyecto_clase
 
-# 2. Levantar todos los servicios (primera vez toma más tiempo)
+# 2. ✨ Las variables de entorno se configuran automáticamente desde .env.docker
+# 3. Levantar todos los servicios (primera vez toma más tiempo)
 docker compose up --build -d
 
-# 3. Verificar que todo esté funcionando
+# 4. Verificar que todo esté funcionando
 docker compose ps
 
-# 4. Verificar logs si hay problemas
+# 5. Verificar logs si hay problemas
 docker compose logs -f api
 ```
 
@@ -107,7 +112,13 @@ docker compose logs -f api
 - **Frontend (React)**: http://localhost:4000
 - **API Backend**: http://localhost:3000
 - **Documentación de API**: http://localhost:3000/api-docs
-- **Base de datos**: `localhost:1433` (usuario: `sa`, password: `TodoApp2024!`)
+- **Base de datos**: `localhost:1433` (credenciales en `.env.docker`)
+
+#### 🔧 **Configuración de Variables de Entorno**
+
+- **✨ Docker (Recomendado)**: Variables configuradas automáticamente desde `.env.docker`
+- **Manual**: Requiere crear `Backend/.env` desde `Backend/.env.example`
+- **Detalles completos**: Ver [CONFIGURACION.md](./CONFIGURACION.md)
 
 ---
 
@@ -142,8 +153,8 @@ docker compose up --build -d
 # Ejecutar pruebas
 docker exec todo-api npm test
 
-# Acceder a la base de datos
-docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'TodoApp2024!'
+# Acceder a la base de datos (credenciales en .env.docker)
+docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P '[PASSWORD_FROM_ENV]'
 ```
 
 ---
@@ -507,9 +518,9 @@ Las pruebas utilizan:
    cd Backend
    npm install
    
-   # Configurar variables de entorno
+   # ✨ Configurar variables de entorno para desarrollo manual
    cp .env.example .env
-   # Editar .env con tu configuración (ver ejemplo abajo)
+   # Editar Backend/.env con tu configuración (ver ejemplo abajo)
    ```
 
 3. **Configurar Frontend**
@@ -556,10 +567,11 @@ Las pruebas utilizan:
 - **Documentación de API**: http://localhost:3000/api-docs
 
 ### Notas Importantes
-- El archivo `.env` es requerido SOLO para instalación manual
-- Con Docker, las variables de entorno se configuran automáticamente
-- Asegúrate de que SQL Server esté ejecutándose antes de iniciar el backend
-- Para producción, cambia `NODE_ENV=production` en el .env
+- ✨ **Docker (Recomendado)**: Variables se leen automáticamente desde `.env.docker`
+- ✨ **Desarrollo Manual**: Requiere crear `Backend/.env` desde `Backend/.env.example`
+- Con Docker, la base de datos SQL Server se configura automáticamente
+- Para desarrollo manual, asegúrate de que SQL Server esté ejecutándose localmente
+- Para producción, cambia `NODE_ENV=production` en el archivo correspondiente
 
 </details>
 
@@ -583,9 +595,9 @@ cd Backend
 # 2. Instalar dependencias
 npm install
 
-# 3. Configurar variables de entorno
+# 3. ✨ Configurar variables de entorno para desarrollo manual
 cp .env.example .env
-# Edita el archivo .env con tu configuración de base de datos
+# Edita el archivo Backend/.env con tu configuración de base de datos
 
 # 4. Configurar base de datos
 # Ejecutar script docker-init-db.sql en tu SQL Server local
@@ -642,7 +654,7 @@ cd Frontend && npm run format  # (si está configurado)
 
 ### ⚙️ Configuración de Variables de Entorno
 
-**Backend (.env)**:
+**Para Desarrollo Manual (Backend/.env)**:
 ```env
 PORT=3000
 DB_USER=tu_usuario_sql
@@ -653,11 +665,104 @@ JWT_SECRET=tu_clave_secreta_muy_segura
 NODE_ENV=development
 ```
 
+**Para Docker (automático)**:
+- ✨ Variables se leen desde `.env.docker` en el directorio raíz
+- No necesitas crear Backend/.env cuando uses Docker
+
 **Frontend**: 
 - No requiere archivo .env para desarrollo básico
 - La URL de la API se configura automáticamente para desarrollo
 
 </details>
+
+---
+
+## 🔧 **Configuración Avanzada de Variables de Entorno**
+
+Este proyecto soporta dos métodos de configuración, optimizados para diferentes escenarios de desarrollo.
+
+### 🐳 **Método 1: Docker (Recomendado)**
+
+**Archivos utilizados:**
+- `.env.docker` (directorio raíz) - Variables centralizadas
+- `docker-compose.yml` - Overrides específicos de Docker
+
+**Ventajas:**
+- ✨ Configuración automática
+- ✨ Base de datos incluida
+- ✨ Variables pre-configuradas
+- ✨ Sin dependencias externas
+
+```bash
+# Solo necesitas ejecutar:
+sudo docker compose up --build -d
+# ¡Las variables se leen automáticamente desde .env.docker!
+```
+
+### 🔨 **Método 2: Desarrollo Manual**
+
+**Archivos utilizados:**
+- `Backend/.env.example` - Template
+- `Backend/.env` - Archivo que debes crear
+
+**Cuándo usar:**
+- Desarrollo sin Docker
+- Debugging específico
+- CI/CD personalizado
+- Configuraciones de producción
+
+```bash
+# Crear configuración manual:
+cd Backend
+cp .env.example .env
+# Editar Backend/.env con tus valores
+npm install && npm run dev
+```
+
+### 📊 **Comparación de Métodos**
+
+| Aspecto | Docker | Manual |
+|---------|--------|---------|
+| **Configuración inicial** | Automática | Manual |
+| **Base de datos** | Incluida | Requiere instalación |
+| **Variables** | `.env.docker` | `Backend/.env` |
+| **Dependencias** | Solo Docker | Node.js + SQL Server |
+| **Tiempo setup** | ~2 minutos | ~15-30 minutos |
+
+### 📝 **Documentación Detallada**
+
+Para guías completas de configuración, consulta: **[CONFIGURACION.md](./CONFIGURACION.md)**
+
+---
+
+## 🔒 **Seguridad y Credenciales**
+
+### ⚠️ **Información Importante**
+
+- **📝 Credenciales de BD**: Configuradas en `.env.docker` para Docker
+- **📝 Para desarrollo manual**: Crear `Backend/.env` con tus credenciales
+- **⛔ NUNCA** commitear archivos `.env` con credenciales reales
+- **🌯 Producción**: Usar variables de entorno del servidor/container
+
+### 📦 **Archivos de Configuración**
+
+| Archivo | Propósito | En Git | 
+|---------|---------|--------|
+| `.env.docker` | Docker (desarrollo) | ✅ Sí - valores desarrollo |
+| `Backend/.env.example` | Template | ✅ Sí - solo template |
+| `Backend/.env` | Desarrollo manual | ⛔ NO - gitignored |
+
+### 🚪 **Acceso a Base de Datos**
+
+Para conectarte a la base de datos manualmente:
+
+```bash
+# Docker (credenciales en .env.docker)
+sudo docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U [USER] -P '[PASSWORD]'
+
+# Ver credenciales actuales (si es necesario)
+cat .env.docker | grep DB_
+```
 
 ---
 

@@ -1,5 +1,18 @@
 # Aplicación TODO - Sistema de Gestión de Tareas
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)](https://github.com/usuario/proyecto_clase)
+[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-4.21.x-lightgrey.svg)](https://expressjs.com/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-red.svg)](https://www.microsoft.com/sql-server/)
+[![Docker](https://img.shields.io/badge/Docker-supported-blue.svg)](https://www.docker.com/)
+[![JWT](https://img.shields.io/badge/JWT-Auth-orange.svg)](https://jwt.io/)
+[![Tests](https://img.shields.io/badge/Tests-Jest-green.svg)](https://jestjs.io/)
+[![API](https://img.shields.io/badge/API-REST-blue.svg)](https://restfulapi.net/)
+[![Spanish](https://img.shields.io/badge/Lang-Espa%C3%B1ol-yellow.svg)](#)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/usuario/proyecto_clase/graphs/commit-activity)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
 Una aplicación de gestión de tareas full-stack construida con Node.js, Express y SQL Server. Esta aplicación permite a los usuarios registrarse, autenticarse y gestionar sus tareas personales con una API segura.
 
 ## 🚀 Características
@@ -282,6 +295,134 @@ curl -X POST http://localhost:3000/api/tareas \
 curl -X GET http://localhost:3000/api/tareas \
   -H "Authorization: Bearer TU_TOKEN_JWT"
 ```
+
+## 🧪 Pruebas (Testing)
+
+El proyecto incluye un suite completo de pruebas automatizadas con Jest para garantizar la calidad del código.
+
+### Tipos de Pruebas
+
+- **📊 Pruebas Unitarias**: Testean funciones individuales y componentes aislados
+- **🔗 Pruebas de Integración**: Testean la interacción entre componentes y endpoints
+- **🌐 Pruebas de Middleware**: Verifican autenticación y validaciones
+
+### Estructura de Pruebas
+
+```
+Backend/tests/
+├── unit/                    # Pruebas unitarias
+│   ├── usuarioController.test.js
+│   ├── tareaController.test.js
+│   └── auth.middleware.test.js
+├── integration/             # Pruebas de integración
+│   └── api.integration.test.js
+├── mocks/                  # Mocks para BD y servicios
+│   └── dbMock.js
+├── helpers/                # Utilidades para pruebas
+└── setup.js                # Configuración global de Jest
+```
+
+### Comandos de Testing
+
+```bash
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar con modo watch (se re-ejecuta al cambiar código)
+npm run test:watch
+
+# Generar reporte de cobertura de código
+npm run test:coverage
+
+# Ejecutar solo pruebas unitarias
+npm run test:unit
+
+# Ejecutar solo pruebas de integración
+npm run test:integration
+
+# Ejecutar todas las pruebas con salida detallada
+npm run test:all
+```
+
+### Ejecutar Pruebas con Docker
+
+```bash
+# Ejecutar pruebas dentro del contenedor
+sudo docker exec todo-api npm test
+
+# Ejecutar con cobertura
+sudo docker exec todo-api npm run test:coverage
+
+# Ver resultados de cobertura
+sudo docker exec todo-api cat coverage/lcov-report/index.html
+```
+
+### Cobertura de Pruebas
+
+Las pruebas cubren:
+
+- ✅ **Controladores**: 100% de funciones principales
+- ✅ **Middleware**: Autenticación y validaciones
+- ✅ **Rutas**: Todos los endpoints de la API
+- ✅ **Manejo de errores**: Casos de error y excepciones
+- ✅ **Validaciones**: Campos requeridos y formatos
+
+### Ejemplos de Pruebas
+
+#### Prueba Unitaria (Usuario)
+```javascript
+it('debería registrar un usuario exitosamente', async () => {
+  const response = await registrarUsuario(req, res);
+  
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith({ 
+    mensaje: 'Usuario Creado correctamente' 
+  });
+});
+```
+
+#### Prueba de Integración (API)
+```javascript
+it('debería crear tarea con autenticación válida', async () => {
+  const response = await request(app)
+    .post('/api/tareas')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ titulo: 'Test', descripcion: 'Tarea de prueba' })
+    .expect(200);
+    
+  expect(response.body.mensaje).toBe('Tarea agregada correctamente');
+});
+```
+
+### CI/CD y Automatización
+
+Las pruebas se pueden integrar fácilmente en pipelines de CI/CD:
+
+```yaml
+# GitHub Actions ejemplo
+- name: Run Tests
+  run: |
+    cd Backend
+    npm install
+    npm run test:all
+```
+
+### Configuración de Testing
+
+Jest está configurado en `package.json` con:
+
+- **Entorno**: Node.js
+- **Timeout**: 30 segundos para pruebas de integración
+- **Cobertura**: Incluye todos los archivos `.js` excepto `node_modules`
+- **Setup**: Configuración global en `tests/setup.js`
+
+### Datos de Prueba
+
+Las pruebas utilizan:
+
+- **Mocks de BD**: Para pruebas unitarias sin conexión real
+- **Datos generados**: Usuarios y tareas únicos por ejecución
+- **Limpieza automática**: Datos de prueba se limpian después de cada test
 
 ## 🏗️ Stack de Tecnologías
 

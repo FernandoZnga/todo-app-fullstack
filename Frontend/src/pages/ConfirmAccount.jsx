@@ -1,0 +1,82 @@
+import React, { useEffect, useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+import { CheckSquare, CheckCircle, XCircle } from 'lucide-react'
+
+const ConfirmAccount = () => {
+  const { token } = useParams()
+  const { confirmAccount } = useAuth()
+  const [status, setStatus] = useState('loading') // loading, success, error
+
+  useEffect(() => {
+    const confirm = async () => {
+      if (!token) {
+        setStatus('error')
+        return
+      }
+
+      const result = await confirmAccount(token)
+      setStatus(result.success ? 'success' : 'error')
+    }
+
+    confirm()
+  }, [token, confirmAccount])
+
+  return (
+    <div className="min-h-screen bg-primary-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <CheckSquare className="h-12 w-12 text-primary-900" />
+        </div>
+        
+        <div className="mt-8">
+          <div className="card text-center">
+            {status === 'loading' && (
+              <>
+                <div className="loading-spinner mx-auto mb-4"></div>
+                <h2 className="text-xl font-semibold text-primary-900 mb-2">
+                  Confirmando cuenta...
+                </h2>
+                <p className="text-primary-600">
+                  Espera un momento mientras confirmamos tu cuenta.
+                </p>
+              </>
+            )}
+
+            {status === 'success' && (
+              <>
+                <CheckCircle className="h-16 w-16 text-success-500 mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-primary-900 mb-2">
+                  ¡Cuenta Confirmada!
+                </h2>
+                <p className="text-primary-600 mb-6">
+                  Tu cuenta ha sido confirmada exitosamente. Ya puedes iniciar sesión.
+                </p>
+                <Link to="/login" className="btn-primary">
+                  Iniciar Sesión
+                </Link>
+              </>
+            )}
+
+            {status === 'error' && (
+              <>
+                <XCircle className="h-16 w-16 text-error-500 mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-primary-900 mb-2">
+                  Error de Confirmación
+                </h2>
+                <p className="text-primary-600 mb-6">
+                  No pudimos confirmar tu cuenta. El enlace puede haber expirado o ser inválido.
+                </p>
+                <Link to="/login" className="btn-secondary">
+                  Ir al Login
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ConfirmAccount

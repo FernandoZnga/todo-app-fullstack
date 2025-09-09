@@ -41,7 +41,7 @@
   }
   
   .input-error {
-    @apply input border-error-500 focus:ring-error-300;
+    @apply input border-error-500 focus:ring-error-300 focus:border-error-500;
   }
   
   /* Card Components */

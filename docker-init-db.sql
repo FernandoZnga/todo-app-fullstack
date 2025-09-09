@@ -103,15 +103,31 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
+    DECLARE @userId INT;
+    
+    -- Primero verificar si el token existe y obtener el ID del usuario
+    SELECT @userId = id 
+    FROM Gestion.Usuario 
+    WHERE tokenVerificacion = @tokenVerificacion;
+    
+    -- Si no se encontró el token, retornar vacío
+    IF @userId IS NULL
+    BEGIN
+        SELECT CAST(NULL as INT) as id, CAST(NULL as NVARCHAR(100)) as nombreUsuario, 
+               CAST(NULL as NVARCHAR(100)) as correo, CAST(NULL as BIT) as verificado
+        WHERE 1=0; -- Retorna conjunto vacío
+        RETURN;
+    END
+    
     -- Actualizar usuario como verificado y limpiar token
     UPDATE Gestion.Usuario 
     SET verificado = 1, tokenVerificacion = NULL
-    WHERE tokenVerificacion = @tokenVerificacion;
+    WHERE id = @userId;
     
-    -- Retornar información del usuario
+    -- Retornar información del usuario usando el ID
     SELECT id, nombreUsuario, correo, verificado
     FROM Gestion.Usuario 
-    WHERE tokenVerificacion = @tokenVerificacion OR (verificado = 1 AND @tokenVerificacion IS NOT NULL);
+    WHERE id = @userId;
 END
 GO
 

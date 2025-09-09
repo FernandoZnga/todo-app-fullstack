@@ -73,11 +73,39 @@ services:
     command: npm run dev
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/usuarios"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # Frontend React + Vite
+  frontend:
+    build: 
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+    ports:
+      - "5173:5173"
+    volumes:
+      # Montar el código fuente para hot reload en desarrollo
+      - ./Frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - todo-network
+    command: npm run dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
 # Red para comunicación entre contenedores
 networks:

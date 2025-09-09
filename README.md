@@ -104,8 +104,9 @@ docker compose logs -f api
 ```
 
 **🎉 ¡Listo!** 
-- **API**: http://localhost:3000
-- **Documentación**: http://localhost:3000/api-docs
+- **Frontend (React)**: http://localhost:4000
+- **API Backend**: http://localhost:3000
+- **Documentación de API**: http://localhost:3000/api-docs
 - **Base de datos**: `localhost:1433` (usuario: `sa`, password: `TodoApp2024!`)
 
 ---
@@ -442,7 +443,7 @@ Las pruebas utilizan:
 
 ## 🏗️ Stack de Tecnologías
 
-### Backend
+### Backend (API)
 - **Framework**: Express.js 4.21.x
 - **Base de Datos**: Microsoft SQL Server 2022
 - **Autenticación**: JWT (JSON Web Tokens)
@@ -454,6 +455,23 @@ Las pruebas utilizan:
 - **Documentación API**: Swagger/OpenAPI 3.0
 - **Testing**: Jest + Supertest
 - **Desarrollo**: nodemon (hot reload)
+- **Puerto**: 3000
+
+### Frontend (Interfaz de Usuario)
+- **Framework**: React 18.x con Vite
+- **Estilos**: Tailwind CSS 3.x
+- **Iconos**: Lucide React
+- **Notificaciones**: React Hot Toast
+- **Enrutamiento**: React Router DOM
+- **Estado**: React Hooks (useState, useEffect, useContext)
+- **HTTP Client**: Axios con interceptores
+- **✨ Interfaz Moderna**: Diseño responsivo y accesible
+- **✨ Gestión Completa de Tareas**: Crear, completar, borrar con comentarios
+- **✨ Filtros Avanzados**: Interfaz visual para todos los filtros
+- **✨ Historial de Tareas**: Modal con timeline completo de acciones
+- **✨ Validaciones**: Validación en tiempo real de formularios
+- **Desarrollo**: Hot Module Replacement (HMR)
+- **Puerto**: 4000
 
 ### DevOps & Herramientas
 - **Containerización**: Docker + Docker Compose
@@ -463,17 +481,20 @@ Las pruebas utilizan:
 
 ---
 
-## 🛠️ Apéndice: Instalación Manual (Sin Docker)
+## 🕰️ Instalación y Configuración Manual (Para Producción o Desarrollo sin Docker)
 
 <details>
 <summary>Click para expandir las instrucciones de instalación manual</summary>
 
-### Prerrequisitos
-- Node.js (v14 o superior)
-- SQL Server (Express, Developer, o versión completa)
-- npm (viene con Node.js)
+> **⚠️ Nota**: Para desarrollo, recomendamos usar Docker (sección de Quick Start arriba). Esta sección es útil para configuraciones de producción o cuando Docker no está disponible.
 
-### Pasos
+### Prerrequisitos
+- Node.js (v18 o superior)
+- npm (viene con Node.js)
+- SQL Server (Express, Developer, o versión completa)
+- Git
+
+### Pasos de Instalación
 
 1. **Clonar el repositorio**
    ```bash
@@ -481,30 +502,160 @@ Las pruebas utilizan:
    cd proyecto_clase
    ```
 
-2. **Instalar dependencias**
+2. **Configurar Backend (API)**
    ```bash
    cd Backend
    npm install
+   
+   # Configurar variables de entorno
+   cp .env.example .env
+   # Editar .env con tu configuración (ver ejemplo abajo)
    ```
 
-3. **Configurar base de datos**
-   - Instalar SQL Server localmente
-   - Ejecutar script `docker-init-db.sql`
-   - Crear archivo `Backend/.env`:
-     ```env
-     PORT=3000
-     DB_USER=tu_usuario_sql_server
-     DB_PASSWORD=tu_contraseña
-     DB_SERVER=localhost
-     DB_DATABASE=ToDoDB
-     JWT_SECRET=tu_clave_secreta_aqui
-     ```
-
-4. **Ejecutar aplicación**
+3. **Configurar Frontend**
    ```bash
-   npm run dev  # Desarrollo
+   cd ../Frontend
+   npm install
+   ```
+
+4. **Configurar base de datos**
+   - Instalar SQL Server localmente
+   - Ejecutar script `docker-init-db.sql` en tu instancia de SQL Server
+   - Ejecutar scripts adicionales de `database-scripts/` si es necesario
+
+5. **Configurar archivo .env del Backend**
+   ```env
+   PORT=3000
+   DB_USER=tu_usuario_sql_server
+   DB_PASSWORD=tu_contraseña
+   DB_SERVER=localhost
+   DB_DATABASE=ToDoDB
+   JWT_SECRET=tu_clave_secreta_muy_segura_aqui
+   NODE_ENV=production
+   ```
+
+6. **Ejecutar aplicaciones**
+   
+   **Backend:**
+   ```bash
+   cd Backend
+   npm run dev  # Desarrollo con hot reload
    npm start    # Producción
    ```
+   
+   **Frontend:**
+   ```bash
+   cd Frontend
+   npm run dev    # Desarrollo con hot reload
+   npm run build  # Construir para producción
+   ```
+
+### URLs de Acceso Manual
+- **Frontend**: http://localhost:4000 (desarrollo)
+- **Backend API**: http://localhost:3000
+- **Documentación de API**: http://localhost:3000/api-docs
+
+### Notas Importantes
+- El archivo `.env` es requerido SOLO para instalación manual
+- Con Docker, las variables de entorno se configuran automáticamente
+- Asegúrate de que SQL Server esté ejecutándose antes de iniciar el backend
+- Para producción, cambia `NODE_ENV=production` en el .env
+
+</details>
+
+## 🚀 Desarrollo Manual (Sin Docker)
+
+<details>
+<summary>Click para expandir las instrucciones de desarrollo manual</summary>
+
+### 🔧 Prerrequisitos para Desarrollo Manual
+- Node.js (v18 o superior)
+- npm (viene con Node.js)
+- SQL Server (Express, Developer, o versión completa)
+- Git
+
+### 💾 Backend (API) - Desarrollo Manual
+
+```bash
+# 1. Navegar al directorio del backend
+cd Backend
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Configurar variables de entorno
+cp .env.example .env
+# Edita el archivo .env con tu configuración de base de datos
+
+# 4. Configurar base de datos
+# Ejecutar script docker-init-db.sql en tu SQL Server local
+
+# 5. Iniciar en modo desarrollo (con hot reload)
+npm run dev
+
+# O iniciar en modo producción
+npm start
+```
+
+**API disponible en**: http://localhost:3000  
+**Documentación**: http://localhost:3000/api-docs
+
+### 🎨 Frontend (React) - Desarrollo Manual
+
+```bash
+# 1. Navegar al directorio del frontend
+cd Frontend
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Iniciar en modo desarrollo (con hot reload)
+npm run dev
+
+# 4. Para construir para producción
+npm run build
+
+# 5. Para previsualizar la construcción de producción
+npm run preview
+```
+
+**Frontend disponible en**: http://localhost:4000
+
+### 📋 Comandos Útiles de Desarrollo
+
+```bash
+# Ejecutar pruebas del backend
+cd Backend && npm test
+
+# Ejecutar con cobertura
+cd Backend && npm run test:coverage
+
+# Ver logs de desarrollo
+cd Backend && tail -f logs/app.log  # (si existe)
+
+# Linting del código frontend
+cd Frontend && npm run lint
+
+# Formatear código frontend
+cd Frontend && npm run format  # (si está configurado)
+```
+
+### ⚙️ Configuración de Variables de Entorno
+
+**Backend (.env)**:
+```env
+PORT=3000
+DB_USER=tu_usuario_sql
+DB_PASSWORD=tu_contraseña
+DB_SERVER=localhost
+DB_DATABASE=ToDoDB
+JWT_SECRET=tu_clave_secreta_muy_segura
+NODE_ENV=development
+```
+
+**Frontend**: 
+- No requiere archivo .env para desarrollo básico
+- La URL de la API se configura automáticamente para desarrollo
 
 </details>
 

@@ -202,6 +202,7 @@ The application uses a SQL Server database with schema `Gestion`:
 ### Environment Configuration
 
 **Docker Environment** (pre-configured):
+- Frontend runs on port `4000`
 - API runs on port `3000`
 - SQL Server on port `1433` 
 - Database: `ToDoDB`

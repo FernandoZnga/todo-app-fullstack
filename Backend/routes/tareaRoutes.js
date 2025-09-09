@@ -59,10 +59,36 @@ router.post('/',checkAuth, agregarTarea)
  * @swagger
  * /api/tareas:
  *   get:
- *     summary: Obtener todas las tareas del usuario autenticado
+ *     summary: ✨ Obtener tareas del usuario con filtros avanzados
+ *     description: Permite obtener tareas del usuario autenticado con diferentes filtros para mostrar tareas pendientes, completadas, borradas o todas.
  *     tags: [Tareas]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [all, pending, completed, deleted, all_including_deleted]
+ *           default: all
+ *         description: ✨ Filtro para el tipo de tareas a mostrar
+ *         examples:
+ *           all:
+ *             summary: Tareas activas (predeterminado)
+ *             value: all
+ *           pending:
+ *             summary: Solo tareas pendientes
+ *             value: pending
+ *           completed:
+ *             summary: Solo tareas completadas
+ *             value: completed
+ *           deleted:
+ *             summary: Solo tareas borradas
+ *             value: deleted
+ *           all_including_deleted:
+ *             summary: Todas las tareas incluyendo borradas
+ *             value: all_including_deleted
  *     responses:
  *       200:
  *         description: Lista de tareas del usuario

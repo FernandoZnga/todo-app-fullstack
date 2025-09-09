@@ -7,7 +7,7 @@ const swaggerDefinition = {
   info: {
     title: 'TODO App API',
     version: '1.0.0',
-    description: 'API REST para gestión de tareas con autenticación JWT y base de datos SQL Server',
+    description: '✨ API REST avanzada para gestión de tareas con autenticación JWT, base de datos SQL Server, completar/borrar tareas con comentarios y sistema de filtros avanzados',
     contact: {
       name: 'Equipo de Desarrollo',
       email: 'desarrollo@todoapp.com'
@@ -150,12 +150,47 @@ const swaggerDefinition = {
           fechaCreacion: {
             type: 'string',
             format: 'date-time',
-            description: 'Fecha de creación de la tarea'
+            description: 'Fecha de creación de la tarea',
+            example: '2024-01-15T10:30:00.000Z'
           },
           fechaActualizacion: {
             type: 'string',
             format: 'date-time',
-            description: 'Fecha de última actualización'
+            description: 'Fecha de última actualización',
+            example: '2024-01-15T10:30:00.000Z'
+          },
+          borrada: {
+            type: 'boolean',
+            description: '✨ Indica si la tarea fue borrada (soft delete)',
+            example: false
+          },
+          fechaCompletada: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+            description: '✨ Fecha y hora cuando la tarea fue completada',
+            example: '2024-01-16T14:20:00.000Z'
+          },
+          fechaBorrado: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+            description: '✨ Fecha y hora cuando la tarea fue borrada',
+            example: null
+          },
+          comentarioCompletar: {
+            type: 'string',
+            nullable: true,
+            maxLength: 500,
+            description: '✨ Comentario obligatorio al completar la tarea',
+            example: 'Tarea finalizada correctamente, todos los objetivos cumplidos'
+          },
+          comentarioBorrado: {
+            type: 'string',
+            nullable: true,
+            maxLength: 500,
+            description: '✨ Comentario obligatorio al borrar la tarea',
+            example: null
           }
         }
       },
@@ -170,6 +205,30 @@ const swaggerDefinition = {
           descripcion: {
             type: 'string',
             example: 'Terminar la implementación de la API REST'
+          }
+        }
+      },
+      CompletarTareaRequest: {
+        type: 'object',
+        required: ['comentario'],
+        properties: {
+          comentario: {
+            type: 'string',
+            maxLength: 500,
+            description: '✨ Comentario obligatorio explicando la completitud de la tarea',
+            example: 'Tarea finalizada correctamente, todos los objetivos cumplidos y entregables revisados.'
+          }
+        }
+      },
+      BorrarTareaRequest: {
+        type: 'object',
+        required: ['comentario'],
+        properties: {
+          comentario: {
+            type: 'string',
+            maxLength: 500,
+            description: '✨ Comentario obligatorio explicando el motivo del borrado',
+            example: 'Tarea cancelada por cambio en las prioridades del proyecto y nuevos requerimientos.'
           }
         }
       },
@@ -204,7 +263,7 @@ const swaggerDefinition = {
     },
     {
       name: 'Tareas',
-      description: 'Operaciones relacionadas con la gestión de tareas'
+      description: '✨ Operaciones avanzadas para la gestión de tareas: crear, listar con filtros, completar con comentarios y borrar (soft delete) con comentarios'
     }
   ]
 };

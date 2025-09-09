@@ -43,9 +43,9 @@ const registrarUsuario = async (req,res) =>{
                 const isDevelopment = process.env.DEVELOPMENT === 'true';
                 
                 if (isDevelopment) {
-                    // Construir la URL de confirmación solo en desarrollo
-                    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
-                    const confirmacionUrl = `${baseUrl}/confirm-account/${tokenVerificacion}`;
+                // Construir la URL de confirmación solo en desarrollo
+                const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+                const confirmacionUrl = `${baseUrl}/confirm/${tokenVerificacion}`;
                     
                     // Respuesta exitosa con URL de confirmación (modo desarrollo)
                     res.status(200).json({ 

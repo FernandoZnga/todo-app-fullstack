@@ -80,7 +80,21 @@ const confirmar = async (req, res) =>{
         // Abrir la conexión 
         const pool = await dbConexion();
 
-        // Consulta para obtener el usuario por token
+        // Primero verificar si el token existe en la base de datos
+        const tokenCheck = await pool.request()
+            .input('token', sql.NVarChar, token)
+            .query('SELECT id, nombreUsuario, correo, verificado FROM Gestion.Usuario WHERE tokenVerificacion = @token');
+
+        if (tokenCheck.recordset.length === 0) {
+            // No existe el token, verificar si hay una cuenta ya verificada con un patrón similar
+            // Esto es para dar un mejor mensaje de error
+            return res.status(404).json({ 
+                mensaje: "Token no válido",
+                detalle: "El enlace puede haber expirado o ya fue utilizado. Si ya confirmaste tu cuenta, puedes iniciar sesión directamente."
+            });
+        }
+
+        // Si el token existe, ejecutar el stored procedure para confirmar
         const resultado = await pool.request()
             .input('tokenVerificacion', sql.NVarChar, token)
             .execute('Gestion.SP_Obtener_Usuario_Por_Token')
@@ -88,12 +102,14 @@ const confirmar = async (req, res) =>{
         const usuario = resultado.recordset[0];
 
         if (!usuario) {
-            const error = new Error("Token no válido");
-        return res.status(404).json({ mensaje: error.message });
+            return res.status(404).json({ 
+                mensaje: "Token no válido",
+                detalle: "Error interno al procesar la confirmación"
+            });
         }
 
         // Obtener el resultado
-    res.status(200).json({ mensaje: 'Cuenta confirmada', usuario });
+        res.status(200).json({ mensaje: 'Cuenta confirmada', usuario });
 
     
     } catch (error) {

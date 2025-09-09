@@ -60,16 +60,32 @@ const ConfirmAccount = () => {
 
             {status === 'error' && (
               <>
-                <XCircle className="h-16 w-16 text-error-500 mx-auto mb-4" />
+                <XCircle className="h-16 w-16 text-warning-500 mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-primary-900 mb-2">
-                  Error de Confirmación
+                  Enlace de Confirmación No Válido
                 </h2>
-                <p className="text-primary-600 mb-6">
-                  No pudimos confirmar tu cuenta. El enlace puede haber expirado o ser inválido.
-                </p>
-                <Link to="/login" className="btn-secondary">
-                  Ir al Login
-                </Link>
+                <div className="text-primary-600 mb-6 space-y-3">
+                  <p>
+                    Este enlace de confirmación ya fue utilizado o ha expirado.
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <p className="text-blue-800 text-sm font-medium mb-2">
+                      ¿Ya confirmaste tu cuenta?
+                    </p>
+                    <p className="text-blue-700 text-sm">
+                      Si ya confirmaste tu cuenta anteriormente, puedes iniciar sesión directamente.
+                      No necesitas confirmar nuevamente.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link to="/login" className="btn-primary">
+                    Iniciar Sesión
+                  </Link>
+                  <Link to="/register" className="btn-secondary">
+                    Crear Nueva Cuenta
+                  </Link>
+                </div>
               </>
             )}
           </div>

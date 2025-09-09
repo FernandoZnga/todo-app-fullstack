@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true)
       const response = await authService.register(userData)
       
-      toast.success('¡Cuenta creada! Revisa tu email para confirmar tu cuenta.')
+      // Don't show success toast here, let the component handle it with the URL
       return { success: true, data: response }
     } catch (error) {
       const message = error.response?.data?.mensaje || 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { CheckSquare, Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
+import { CheckSquare, Eye, EyeOff, Mail, Lock, User, Copy, ExternalLink } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,8 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState({})
+  const [registrationSuccess, setRegistrationSuccess] = useState(false)
+  const [confirmationUrl, setConfirmationUrl] = useState('')
 
   const { register, loading, isAuthenticated } = useAuth()
   const navigate = useNavigate()
@@ -70,6 +73,21 @@ const Register = () => {
     return Object.keys(newErrors).length === 0
   }
 
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('¡URL copiada al portapapeles!')
+    } catch (err) {
+      toast.error('Error al copiar URL')
+    }
+  }
+
+  const openConfirmationUrl = () => {
+    if (confirmationUrl) {
+      window.open(confirmationUrl, '_blank')
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -82,8 +100,105 @@ const Register = () => {
     })
     
     if (result.success) {
-      navigate('/login')
+      setRegistrationSuccess(true)
+      
+      if (result.data.confirmacionUrl && isDevelopment) {
+        // Modo desarrollo: mostrar URL de confirmación
+        setConfirmationUrl(result.data.confirmacionUrl)
+        toast.success('¡Cuenta creada exitosamente!')
+      } else {
+        // Modo producción o sin URL: mostrar mensaje estándar y redirigir
+        toast.success('¡Cuenta creada! Revisa tu email para confirmar tu cuenta.')
+        // En modo producción, redirigir al login después de un breve retraso
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      }
     }
+  }
+
+  // Check if we're in development mode
+  const isDevelopment = import.meta.env.VITE_DEVELOPMENT === 'true'
+
+  // Show success view with confirmation URL (only in development)
+  if (registrationSuccess && confirmationUrl && isDevelopment) {
+    return (
+      <div className="min-h-screen bg-primary-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-lg">
+          <div className="flex justify-center">
+            <CheckSquare className="h-12 w-12 text-success-600" />
+          </div>
+          <h2 className="mt-6 text-center text-3xl font-bold text-primary-900">
+            ¡Cuenta Creada Exitosamente!
+          </h2>
+          <p className="mt-2 text-center text-sm text-primary-600">
+            Para activar tu cuenta, haz clic en el siguiente enlace:
+          </p>
+        </div>
+
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+          <div className="card">
+            <div className="space-y-6">
+              {/* Confirmation URL Display */}
+              <div>
+                <label className="block text-sm font-medium text-primary-700 mb-2">
+                  URL de Confirmación:
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={confirmationUrl}
+                    readOnly
+                    className="input flex-1 bg-gray-50 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(confirmationUrl)}
+                    className="btn-secondary p-2 flex-shrink-0"
+                    title="Copiar URL"
+                  >
+                    <Copy className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={openConfirmationUrl}
+                  className="btn-primary w-full flex justify-center items-center"
+                >
+                  <ExternalLink className="h-5 w-5 mr-2" />
+                  Confirmar Cuenta Ahora
+                </button>
+                
+                <div className="text-center">
+                  <Link 
+                    to="/login" 
+                    className="text-sm font-medium text-primary-900 hover:text-primary-800 transition-colors duration-200"
+                  >
+                    Ir al Inicio de Sesión
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Instructions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Instrucciones:</strong>
+                </p>
+                <ul className="text-sm text-blue-700 mt-2 space-y-1">
+                  <li>• Haz clic en "Confirmar Cuenta Ahora" para activar tu cuenta</li>
+                  <li>• O copia la URL y ábrela en tu navegador</li>
+                  <li>• Una vez confirmada, podrás iniciar sesión normalmente</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

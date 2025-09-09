@@ -39,8 +39,23 @@ const registrarUsuario = async (req,res) =>{
             // Verificar si el mensaje es de error o éxito
             const mensaje = result.output.Mensaje; // El mensaje de salida del SP
             if (mensaje === 'Usuario Creado correctamente') {
-                // Respuesta exitosa
-                res.status(200).json({ mensaje });
+                // Verificar si estamos en modo desarrollo
+                const isDevelopment = process.env.DEVELOPMENT === 'true';
+                
+                if (isDevelopment) {
+                    // Construir la URL de confirmación solo en desarrollo
+                    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+                    const confirmacionUrl = `${baseUrl}/confirm-account/${tokenVerificacion}`;
+                    
+                    // Respuesta exitosa con URL de confirmación (modo desarrollo)
+                    res.status(200).json({ 
+                        mensaje,
+                        confirmacionUrl 
+                    });
+                } else {
+                    // Respuesta exitosa sin URL (modo producción)
+                    res.status(200).json({ mensaje });
+                }
             } else if (mensaje === 'El correo ya está registrado') {
                 // Error de conflicto (correo duplicado)
                 res.status(409).json({ error: mensaje });

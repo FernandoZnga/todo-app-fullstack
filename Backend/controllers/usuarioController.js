@@ -134,7 +134,7 @@ const Autenticar = async (req, res) => {
   const usuario = resultado.recordset[0];
 
   if (!usuario) {
-    const error = new Error("El Usuario es incorrecto");
+    const error = new Error("El Usuario no existe");
     return res.status(404).json({ mensaje: error.message });
   }
 

@@ -134,7 +134,7 @@ const Autenticar = async (req, res) => {
   const usuario = resultado.recordset[0];
 
   if (!usuario) {
-    const error = new Error("El Usuario incorrecto");
+    const error = new Error("El Usuario es incorrecto");
     return res.status(404).json({ mensaje: error.message });
   }
 
@@ -153,7 +153,7 @@ const Autenticar = async (req, res) => {
   if (esContraseñaCorrecta) {
     res.json({ token: generarJTW(usuario.id) });
   } else {
-    const error = new Error("Contraseña incorrecta");
+    const error = new Error("La contraseña es incorrecta");
     return res.status(401).json({ mensaje: error.message });
   }
 };

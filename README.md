@@ -38,6 +38,41 @@ Una aplicación de gestión de tareas full-stack construida con Node.js, Express
   - Rutas protegidas y middleware
   - Sistema de confirmación por email
 
+## 🚨 Demostración de Vulnerabilidades OWASP (Académica)
+
+> **⚠️ Solo con fines educativos**: Este proyecto incluye una branch especial para demostrar vulnerabilidades de seguridad del OWASP API Security Top 10.
+
+### 🎯 **Vulnerabilidad BOLA (Broken Object Level Authorization)**
+
+Este proyecto incluye una **demostración educativa** de la vulnerabilidad **API1:2023 - BOLA** del OWASP API Security Top 10:
+
+- **🟢 Branch Principal (`main`)**: Implementación segura con autorización adecuada
+- **🔴 Branch Demo (`demo-vulnerable-bola`)**: Versión vulnerable para demostración académica
+
+### 🎓 **Cómo usar la Demostración**
+
+```bash
+# 1. Cambiar a la branch de demostración
+git checkout demo-vulnerable-bola
+
+# 2. Seguir la guía completa de demostración
+# Ver: docs/DEMO_BOLA_PRESENTACION.md
+
+# 3. Volver a la versión segura cuando termines
+git checkout main
+```
+
+### 📚 **Recursos de la Demostración**
+
+- 📋 [**Guía Completa de Demo**](docs/DEMO_BOLA_PRESENTACION.md) - Instrucciones paso a paso
+- 🚀 [**Inicio Rápido**](docs/DEMO_BOLA_RESUMEN.md) - Resumen ejecutivo
+- 🔍 **Comparación**: Contrasta el código vulnerable vs. seguro
+- 🎯 **Impacto**: Demuestra el riesgo real de esta vulnerabilidad
+
+> **📖 Propósito Académico**: Esta demostración está diseñada para enseñar sobre seguridad en APIs, no para uso malicioso.
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```

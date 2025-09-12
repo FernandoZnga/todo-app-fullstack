@@ -64,9 +64,14 @@ proyecto_clase/
 │   ├── .env.example           # ✨ Template para desarrollo manual
 │   └── .gitignore            # Patrones de ignorado de Git
 ├── Frontend/                   # Cliente React (interfaz de usuario)
+├── docs/                       # 📚 Documentación técnica del proyecto
+│   ├── README.md              # Índice de documentación
+│   ├── DEMO_BOLA_PRESENTACION.md # Guía de demostración de vulnerabilidades
+│   ├── CONFIGURACION.md        # Configuraciones detalladas
+│   ├── TASK_MANAGEMENT_FEATURES.md # Funcionalidades avanzadas
+│   └── ... # Más documentación técnica
 ├── .env.docker                 # ✨ Variables de entorno para Docker (recomendado)
 ├── docker-compose.yml          # ✨ Configuración de contenedores
-├── CONFIGURACION.md            # ✨ Guía de configuración de entornos
 ├── database-scripts/          # Scripts de configuración de BD
 │   ├── DB Script.sql          # Esquema principal de la base de datos
 │   ├── actualizar-base-datos.sql # Script de actualización con nuevas funcionalidades
@@ -763,6 +768,24 @@ sudo docker exec -it todo-sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhos
 # Ver credenciales actuales (si es necesario)
 cat .env.docker | grep DB_
 ```
+
+---
+
+## 📚 Documentación
+
+Toda la documentación técnica del proyecto se ha organizado en la carpeta [`docs/`](./docs/):
+
+### 📖 Enlaces Rápidos
+- [📚 **Índice de Documentación**](./docs/README.md) - Navegación completa de todos los documentos
+- [🚀 **Guía de Demo BOLA**](./docs/DEMO_BOLA_PRESENTACION.md) - Demostración de vulnerabilidades de seguridad
+- [⚙️ **Configuración Avanzada**](./docs/CONFIGURACION.md) - Configuraciones detalladas
+- [🗄️ **Scripts de Base de Datos**](./docs/ACTUALIZACION-SCRIPT-DB.md) - Procedimientos de actualización
+- [🔒 **Actualizaciones de Seguridad**](./docs/SECURITY-UPDATE.md) - Mejoras de seguridad implementadas
+- [📋 **Gestión Avanzada de Tareas**](./docs/TASK_MANAGEMENT_FEATURES.md) - Funcionalidades extendidas
+
+### 🔗 Documentación de Desarrollo
+- [WARP.md](./WARP.md) - Comandos y guías específicas para Warp terminal
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Guías para contribuidores
 
 ---
 

@@ -70,8 +70,9 @@ const obtenerTarea = async (req,res) =>{
 const completarTarea = async (req, res) => {
     const { id } = req.params;
     const { comentario } = req.body;
-    const { usuario } = req;
-    const usuarioId = usuario.id;
+    // VULNERABLE: Removed user context validation - BOLA vulnerability!
+    // const { usuario } = req;
+    // const usuarioId = usuario.id;
 
     // Validar que se incluya un comentario
     if (!comentario || !comentario.trim()) {
@@ -82,14 +83,13 @@ const completarTarea = async (req, res) => {
         // Abrir la conexión 
         const pool = await dbConexion();
 
-        // Ejecutar el SP para completar la tarea
+        // VULNERABLE: Using vulnerable stored procedure without user validation
         const resultado = await pool
             .request()
             .input("tareaId", sql.INT, parseInt(id))
-            .input("usuarioId", sql.INT, usuarioId)
             .input("comentario", sql.NVARCHAR(500), comentario.trim())
             .output("Mensaje", sql.NVARCHAR(200))
-            .execute("Gestion.SP_Completar_Tarea");
+            .execute("Gestion.SP_Completar_Tarea_Vulnerable");
 
         const mensaje = resultado.output.Mensaje;
         
@@ -108,8 +108,9 @@ const completarTarea = async (req, res) => {
 const borrarTarea = async (req, res) => {
     const { id } = req.params;
     const { comentario } = req.body;
-    const { usuario } = req;
-    const usuarioId = usuario.id;
+    // VULNERABLE: Removed user context validation - BOLA vulnerability!
+    // const { usuario } = req;
+    // const usuarioId = usuario.id;
 
     // Validar que se incluya un comentario
     if (!comentario || !comentario.trim()) {
@@ -120,14 +121,13 @@ const borrarTarea = async (req, res) => {
         // Abrir la conexión 
         const pool = await dbConexion();
 
-        // Ejecutar el SP para borrar la tarea
+        // VULNERABLE: Using vulnerable stored procedure without user validation
         const resultado = await pool
             .request()
             .input("tareaId", sql.INT, parseInt(id))
-            .input("usuarioId", sql.INT, usuarioId)
             .input("comentario", sql.NVARCHAR(500), comentario.trim())
             .output("Mensaje", sql.NVARCHAR(200))
-            .execute("Gestion.SP_Borrar_Tarea");
+            .execute("Gestion.SP_Borrar_Tarea_Vulnerable");
 
         const mensaje = resultado.output.Mensaje;
         

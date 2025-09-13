@@ -64,9 +64,9 @@ sudo docker compose restart api
 curl -X POST http://localhost:3000/api/usuarios \
   -H "Content-Type: application/json" \
   -d '{
-    "nombre": "Alice",
+    "nombreUsuario": "Alice",
     "correo": "alice@demo.com",
-    "password": "Password123!"
+    "contraseña": "Password123!"
   }'
 ```
 
@@ -75,9 +75,9 @@ curl -X POST http://localhost:3000/api/usuarios \
 curl -X POST http://localhost:3000/api/usuarios \
   -H "Content-Type: application/json" \
   -d '{
-    "nombre": "Bob", 
+    "nombreUsuario": "Bob", 
     "correo": "bob@demo.com",
-    "password": "Password123!"
+    "contraseña": "Password123!"
   }'
 ```
 
@@ -85,7 +85,7 @@ curl -X POST http://localhost:3000/api/usuarios \
 ```bash
 ALICE_TOKEN=$(curl -X POST http://localhost:3000/api/usuarios/login \
   -H "Content-Type: application/json" \
-  -d '{"correo": "alice@demo.com", "password": "Password123!"}' \
+  -d '{"correo": "alice@demo.com", "contraseña": "Password123!"}' \
   | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
 echo "Token de Alice: $ALICE_TOKEN"
@@ -95,7 +95,7 @@ echo "Token de Alice: $ALICE_TOKEN"
 ```bash
 BOB_TOKEN=$(curl -X POST http://localhost:3000/api/usuarios/login \
   -H "Content-Type: application/json" \
-  -d '{"correo": "bob@demo.com", "password": "Password123!"}' \
+  -d '{"correo": "bob@demo.com", "contraseña": "Password123!"}' \
   | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
 echo "Token de Bob: $BOB_TOKEN"

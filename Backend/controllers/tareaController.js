@@ -117,7 +117,7 @@ const obtenerTarea = async (req,res) =>{
                 server_load: `${Math.floor(Math.random() * 100)}%`
             },
             
-            ⚠️: 'Esta respuesta contiene información sensible que NO debería estar expuesta',
+            'warning': 'Esta respuesta contiene información sensible que NO debería estar expuesta',
             vulnerabilidad: 'API3:2023 - Broken Object Property Level Authorization (Excessive Data Exposure)'
         });
 

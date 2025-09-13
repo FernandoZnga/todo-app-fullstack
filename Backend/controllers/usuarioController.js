@@ -222,7 +222,7 @@ const perfil = async (req, res) => {
   
   res.json({ 
     perfil: perfilVulnerable,
-    ⚠️: 'Esta respuesta contiene información sensible que NO debería estar expuesta',
+    'warning': 'Esta respuesta contiene información sensible que NO debería estar expuesta',
     vulnerabilities: [
       'Excessive Data Exposure',
       'Internal System Information Leak',
@@ -479,7 +479,7 @@ const infoSistema = async (req, res) => {
       admin_panel: '/api/usuarios/admin-panel'
     },
     
-    ⚠️: 'Esta información NO debería estar expuesta públicamente',
+    'warning': 'Esta información NO debería estar expuesta públicamente',
     vulnerabilidad: 'API3:2023 - Broken Object Property Level Authorization (System Info Exposure)'
   });
 };
@@ -531,7 +531,7 @@ const debugQueries = async (req, res) => {
         'SP_Borrar_Tarea'
       ],
       
-      ⚠️: 'Estructura de base de datos completamente expuesta',
+      'warning': 'Estructura de base de datos completamente expuesta',
       vulnerabilidad: 'API3:2023 - BOPLA (Database Schema Exposure)'
     });
     

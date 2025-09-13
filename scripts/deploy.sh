@@ -32,7 +32,9 @@ log_error() {
 # Configuración
 PROJECT_NAME="proyecto_clase"
 GITHUB_REPO=""
-BRANCH="main"
+# Detectar branch actual o usar main por defecto
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+BRANCH="${CURRENT_BRANCH}"
 
 # Función de ayuda
 show_help() {
@@ -40,11 +42,11 @@ show_help() {
     echo ""
     echo "Options:"
     echo "  -r, --repo REPO     GitHub repository (user/repo-name)"
-    echo "  -b, --branch BRANCH Git branch to deploy (default: main)"
+    echo "  -b, --branch BRANCH Git branch to deploy (default: current branch)"
     echo "  -h, --help          Show this help message"
     echo ""
     echo "Example:"
-    echo "  $0 --repo username/proyecto_clase --branch main"
+    echo "  $0 --repo username/proyecto_clase --branch digital-ocean"
 }
 
 # Parsear argumentos

@@ -1,0 +1,172 @@
+# DigitalOcean App Platform Configuration
+# Este archivo define la configuración completa para el deploy de la aplicación TODO
+
+name: todo-app-proyecto-clase
+region: nyc
+
+# Variables de entorno globales (compartidas entre servicios)
+envs:
+  - key: NODE_ENV
+    value: production
+  - key: JWT_SECRET
+    scope: RUN_TIME
+    type: SECRET  # Será configurado en el panel de DigitalOcean
+  - key: DB_DATABASE
+    value: ToDoDB
+  - key: DB_ENCRYPT
+    value: "false"
+  - key: DB_TRUST_SERVER_CERTIFICATE
+    value: "true"
+
+services:
+  # Backend API (Node.js/Express)
+  - name: api
+    source_dir: /Backend
+    github:
+      repo: tu-usuario/proyecto_clase  # Reemplazar con tu repositorio
+      branch: main
+      deploy_on_push: true
+    
+    # Configuración del build
+    build_command: npm install && npm run build
+    run_command: npm start
+    
+    # Configuración del contenedor
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs  # Puedes cambiar a basic-xs o basic-s según necesidad
+    
+    # Puerto donde escucha la aplicación
+    http_port: 3000
+    
+    # Variables de entorno específicas del backend
+    envs:
+      - key: PORT
+        value: "3000"
+      - key: DB_SERVER
+        value: ${todo-database.HOSTNAME}
+      - key: DB_PORT
+        value: ${todo-database.PORT}
+      - key: DB_USER
+        value: ${todo-database.USERNAME}
+      - key: DB_PASSWORD
+        value: ${todo-database.PASSWORD}
+      - key: EMAIL_HOST
+        scope: RUN_TIME
+        type: SECRET  # Configurar en el panel si usas email
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USER
+        scope: RUN_TIME
+        type: SECRET
+      - key: EMAIL_PASS
+        scope: RUN_TIME
+        type: SECRET
+    
+    # Health check
+    health_check:
+      http_path: /
+    
+    # Rutas HTTP
+    routes:
+      - path: /api
+    
+    # Configuración de logs
+    log_destinations:
+      - name: api-logs
+
+  # Frontend (React/Vite)
+  - name: frontend
+    source_dir: /Frontend
+    github:
+      repo: tu-usuario/proyecto_clase  # Reemplazar con tu repositorio
+      branch: main
+      deploy_on_push: true
+    
+    # Build estático para React
+    build_command: npm install && npm run build
+    
+    # Configuración para app estática
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    
+    # Variables de entorno del frontend
+    envs:
+      - key: VITE_API_URL
+        value: ${api.PUBLIC_URL}/api
+      - key: VITE_APP_NAME
+        value: "TODO App"
+    
+    # Configuración para SPA (Single Page Application)
+    static_sites:
+      - name: frontend-static
+        source_dir: /dist
+        index_document: index.html
+        error_document: index.html  # Para React Router
+        catchall_document: index.html
+    
+    # Rutas HTTP
+    routes:
+      - path: /
+    
+    # Configuración de logs
+    log_destinations:
+      - name: frontend-logs
+
+# Base de datos SQL Server/PostgreSQL
+databases:
+  - name: todo-database
+    engine: PG  # PostgreSQL (DigitalOcean no soporta SQL Server managed)
+    version: "15"
+    size: db-s-1vcpu-1gb  # Tamaño mínimo, ajustar según necesidad
+    num_nodes: 1
+    
+    # Configuración de conexión
+    production: false  # Cambiar a true para producción real
+
+# Workers/Jobs (opcional - para tareas en background)
+workers:
+  - name: db-migrations
+    source_dir: /Backend
+    github:
+      repo: tu-usuario/proyecto_clase
+      branch: main
+    
+    # Script para ejecutar migraciones
+    run_command: npm run migrate  # Crear este script en package.json
+    
+    # Configuración mínima
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    
+    # Variables de entorno (hereda las globales)
+    envs:
+      - key: DB_SERVER
+        value: ${todo-database.HOSTNAME}
+      - key: DB_PORT
+        value: ${todo-database.PORT}
+      - key: DB_USER
+        value: ${todo-database.USERNAME}
+      - key: DB_PASSWORD
+        value: ${todo-database.PASSWORD}
+
+# Configuración de alertas (opcional)
+alerts:
+  - rule: CPU_UTILIZATION
+    disabled: false
+    value: 80
+  - rule: MEM_UTILIZATION  
+    disabled: false
+    value: 80
+  - rule: RESTART_COUNT
+    disabled: false
+    value: 5
+
+# Dominios personalizados (opcional)
+domains:
+  - domain: tu-dominio.com  # Reemplazar con tu dominio
+    type: PRIMARY
+    wildcard: false
+    zone: tu-dominio.com

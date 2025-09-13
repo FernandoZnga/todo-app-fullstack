@@ -10,6 +10,8 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.staging
 
 # Runtime data
 pids
@@ -125,3 +127,81 @@ Thumbs.db
 # Build outputs
 build/
 dist/
+
+# DigitalOcean deploy files
+.do/app.yaml.backup
+.do/deploy.log
+.do/secrets/
+
+# Docker production files
+Dockerfile.prod
+docker-compose.prod.yml
+
+# Scripts output
+scripts/*.log
+scripts/output/
+
+# Deploy artifacts
+deploy.tar.gz
+release/
+
+# SSL/TLS certificates
+*.pem
+*.key
+*.crt
+*.csr
+
+# Backup files from scripts
+*.backup
+backup/
+
+# Migration temp files
+migration-*.sql
+temp-*.sql
+
+# Production database backups
+*.bak
+*.sql.gz
+*.dump
+
+# Secrets and sensitive data
+secrets/
+credentials/
+keys/
+*.secrets
+*.credentials
+
+# Service account files
+service-account.json
+*.service-account.json
+gcp-key.json
+aws-credentials
+
+# Monitoring and analytics
+.sentry-env
+.analytics
+
+# Third-party service configs (when they contain secrets)
+cloudflare.json
+aws-config.json
+digitalocean-config.json
+
+# Local development overrides
+docker-compose.override.yml
+.env.override
+
+# Package manager locks (if using different managers)
+yarn.lock
+pnpm-lock.yaml
+
+# Generated documentation
+docs/build/
+docs/dist/
+
+# Test artifacts in production
+test-results/
+coverage-report/
+
+# Temporary deployment files
+temp-deploy/
+staging-deploy/

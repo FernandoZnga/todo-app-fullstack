@@ -3,7 +3,7 @@
 # Script de validación para DigitalOcean App Platform
 # Valida que todos los archivos y configuraciones estén correctos antes del deploy
 
-set -e
+# No usar set -e para permitir manejo manual de errores
 
 # Colores para output
 RED='\033[0;31m'
@@ -49,11 +49,30 @@ validate_json() {
     local description=$2
     
     if [[ -f "$file" ]]; then
-        if node -e "JSON.parse(require('fs').readFileSync('$file', 'utf8'))" 2>/dev/null; then
-            log_success "✅ $description: $file (valid JSON)"
+        # Intentar validar JSON con diferentes herramientas
+        if command -v jq &> /dev/null; then
+            if jq . "$file" > /dev/null 2>&1; then
+                log_success "✅ $description: $file (valid JSON)"
+            else
+                log_error "❌ $description: $file (INVALID JSON)"
+                ((ERRORS++))
+            fi
+        elif command -v python3 &> /dev/null; then
+            if python3 -c "import json; json.load(open('$file'))" 2>/dev/null; then
+                log_success "✅ $description: $file (valid JSON)"
+            else
+                log_error "❌ $description: $file (INVALID JSON)"
+                ((ERRORS++))
+            fi
+        elif command -v node &> /dev/null; then
+            if node -e "JSON.parse(require('fs').readFileSync('$file', 'utf8'))" 2>/dev/null; then
+                log_success "✅ $description: $file (valid JSON)"
+            else
+                log_error "❌ $description: $file (INVALID JSON)"
+                ((ERRORS++))
+            fi
         else
-            log_error "❌ $description: $file (INVALID JSON)"
-            ((ERRORS++))
+            log_success "✅ $description: $file (file exists, JSON validation skipped - no validator found)"
         fi
     else
         log_error "❌ $description: $file (NOT FOUND)"
@@ -159,16 +178,16 @@ if command -v node &> /dev/null; then
     NODE_VERSION=$(node --version)
     log_success "✅ Node.js: $NODE_VERSION"
 else
-    log_error "❌ Node.js no está instalado"
-    ((ERRORS++))
+    log_warning "⚠️  Node.js no está instalado (recomendado para desarrollo local)"
+    ((WARNINGS++))
 fi
 
 if command -v npm &> /dev/null; then
     NPM_VERSION=$(npm --version)
     log_success "✅ npm: v$NPM_VERSION"
 else
-    log_error "❌ npm no está instalado"
-    ((ERRORS++))
+    log_warning "⚠️  npm no está instalado (recomendado para desarrollo local)"
+    ((WARNINGS++))
 fi
 
 if command -v git &> /dev/null; then

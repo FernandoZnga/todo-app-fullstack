@@ -158,10 +158,78 @@ const Autenticar = async (req, res) => {
   }
 };
 
-const perfil = (req, res) => {
-  const { usuario } = req;
+// ⚠️ VULNERABILIDAD DEMO: API3:2023 - Broken Object Property Level Authorization (BOPLA)
+// Esta versión expone propiedades sensibles que no deberían ser visibles
+// ¡NO USAR EN PRODUCCIÓN!
 
-  res.json({ perfil: usuario });
+const perfil = async (req, res) => {
+  const { usuario } = req;
+  
+  console.log('⚠️ VULNERABILIDAD BOPLA: Exponiendo datos sensibles en perfil');
+  
+  // Abrir la conexión para obtener más datos sensibles
+  const pool = await dbConexion();
+  const resultado = await pool
+    .request()
+    .input('usuarioId', sql.Int, usuario.id)
+    .query('SELECT * FROM Gestion.Usuario WHERE id = @usuarioId');
+  
+  const usuarioCompleto = resultado.recordset[0];
+  
+  // 🚨 VULNERABILIDAD 1: Excessive Data Exposure
+  // Exponer información sensible que NO debería estar en la respuesta
+  const perfilVulnerable = {
+    // Datos legítimos
+    id: usuarioCompleto.id,
+    nombreUsuario: usuarioCompleto.nombreUsuario,
+    correo: usuarioCompleto.correo,
+    
+    // 🚨 DATOS SENSIBLES EXPUESTOS:
+    contraseña_hash: usuarioCompleto.contraseña, // ¡NUNCA exponer!
+    tokenVerificacion: usuarioCompleto.tokenVerificacion, // Token secreto
+    verificado: usuarioCompleto.verificado, // Info interna
+    fechaCreacion: usuarioCompleto.fechaCreacion,
+    fechaActualizacion: usuarioCompleto.fechaActualizacion,
+    
+    // 🚨 METADATOS INTERNOS:
+    internal_user_id: `USR_${usuarioCompleto.id}_${Date.now()}`,
+    database_table: 'Gestion.Usuario',
+    server_version: '1.0.0-vulnerable',
+    
+    // 🚨 INFORMACIóN DEL SISTEMA:
+    system_info: {
+      node_version: process.version,
+      platform: process.platform,
+      uptime_seconds: Math.floor(process.uptime()),
+      memory_usage: process.memoryUsage(),
+      environment: process.env.NODE_ENV || 'development',
+      jwt_algorithm: 'HS256'
+    },
+    
+    // 🚨 CAMPOS ADMINISTRATIVOS:
+    is_admin: usuarioCompleto.id === 1, // Lógica de rol expuesta
+    role_level: usuarioCompleto.id === 1 ? 'admin' : 'user',
+    permissions: usuarioCompleto.id === 1 ? ['read', 'write', 'delete', 'admin'] : ['read', 'write'],
+    
+    // 🚨 DATOS DE DEBUGGING:
+    debug_info: {
+      sql_query_executed: 'SELECT * FROM Gestion.Usuario WHERE id = @usuarioId',
+      execution_time_ms: Math.random() * 100,
+      database_connection_pool: 'active',
+      last_query_timestamp: new Date().toISOString()
+    }
+  };
+  
+  res.json({ 
+    perfil: perfilVulnerable,
+    ⚠️: 'Esta respuesta contiene información sensible que NO debería estar expuesta',
+    vulnerabilities: [
+      'Excessive Data Exposure',
+      'Internal System Information Leak',
+      'Database Schema Exposure',
+      'Administrative Role Logic Exposed'
+    ]
+  });
 };
 
 const olvidePassword = async (req, res) => {
@@ -264,6 +332,218 @@ const nuevoPassword = async (req, res) => {
   }
 };
 
+// 🚨 VULNERABILIDAD DEMO: Mass Assignment - Actualizar perfil vulnerable
+const actualizarPerfil = async (req, res) => {
+  console.log('⚠️ VULNERABILIDAD BOPLA: Mass Assignment detectado');
+  
+  const { usuario } = req;
+  const datosActualizacion = req.body;
+  
+  console.log('⚠️ Datos recibidos para actualización:', Object.keys(datosActualizacion));
+  
+  // 🚨 VULNERABILIDAD: Permitir actualizar CUALQUIER campo sin validación
+  const camposPermitidos = [
+    'nombreUsuario', 'correo', // Campos legítimos
+    // 🚨 CAMPOS SENSIBLES QUE NO DEBERÍAN SER MODIFICABLES:
+    'verificado', 'id', 'contraseña', 'tokenVerificacion',
+    'fechaCreacion', 'fechaActualizacion', 'is_admin', 'role_level'
+  ];
+  
+  try {
+    const pool = await dbConexion();
+    
+    // 🚨 CONSTRUIR QUERY DINÁMICO SIN VALIDACIÓN (PELIGROSO)
+    let setParts = [];
+    let request = pool.request().input('usuarioId', sql.Int, usuario.id);
+    
+    Object.keys(datosActualizacion).forEach((campo, index) => {
+      if (camposPermitidos.includes(campo)) {
+        const paramName = `param${index}`;
+        setParts.push(`${campo} = @${paramName}`);
+        
+        // Determinar tipo de dato
+        let valor = datosActualizacion[campo];
+        if (campo === 'verificado' || campo === 'is_admin') {
+          request = request.input(paramName, sql.Bit, valor === true || valor === 'true');
+        } else if (campo === 'id') {
+          request = request.input(paramName, sql.Int, parseInt(valor));
+        } else {
+          request = request.input(paramName, sql.NVarChar(255), valor);
+        }
+        
+        console.log(`⚠️ Permitiendo modificación de campo sensible: ${campo} = ${valor}`);
+      }
+    });
+    
+    if (setParts.length === 0) {
+      return res.status(400).json({ error: 'No hay campos válidos para actualizar' });
+    }
+    
+    // 🚨 EJECUTAR QUERY SIN VALIDACIÓN DE SEGURIDAD
+    const queryUpdate = `UPDATE Gestion.Usuario SET ${setParts.join(', ')} WHERE id = @usuarioId`;
+    console.log('⚠️ Query ejecutado:', queryUpdate);
+    
+    await request.query(queryUpdate);
+    
+    // Obtener usuario actualizado
+    const usuarioActualizado = await pool
+      .request()
+      .input('usuarioId', sql.Int, usuario.id)
+      .query('SELECT * FROM Gestion.Usuario WHERE id = @usuarioId');
+    
+    res.json({
+      mensaje: '🚨 PERFIL ACTUALIZADO - Mass Assignment exitoso',
+      usuario_anterior: usuario,
+      usuario_actualizado: usuarioActualizado.recordset[0],
+      campos_modificados: Object.keys(datosActualizacion),
+      warning: 'Se permitieron modificaciones de campos sensibles',
+      vulnerabilidad: 'API3:2023 - Broken Object Property Level Authorization (Mass Assignment)'
+    });
+    
+  } catch (error) {
+    console.log('⚠️ Error en mass assignment:', error);
+    res.status(500).json({ 
+      error: 'Error al actualizar perfil',
+      detalle_sensible: error.message // 🚨 Exponer detalles de error
+    });
+  }
+};
+
+// 🚨 VULNERABILIDAD: Endpoint de información del sistema (BOPLA)
+const infoSistema = async (req, res) => {
+  console.log('⚠️ VULNERABILIDAD BOPLA: Exponiendo información del sistema');
+  
+  // 🚨 Exponer información detallada del sistema
+  const pool = await dbConexion();
+  
+  // Obtener estadísticas de la base de datos
+  const stats = await pool.request().query(`
+    SELECT 
+      COUNT(*) as total_usuarios,
+      MAX(fechaCreacion) as ultimo_registro,
+      MIN(fechaCreacion) as primer_registro
+    FROM Gestion.Usuario
+  `);
+  
+  const tasksStats = await pool.request().query(`
+    SELECT 
+      COUNT(*) as total_tareas,
+      SUM(CASE WHEN completada = 1 THEN 1 ELSE 0 END) as tareas_completadas,
+      SUM(CASE WHEN borrada = 1 THEN 1 ELSE 0 END) as tareas_borradas
+    FROM Gestion.Tarea
+  `);
+  
+  res.json({
+    mensaje: '🚨 INFORMACIÓN DEL SISTEMA EXPUESTA',
+    
+    // 🚨 INFORMACIÓN DE BASE DE DATOS:
+    database: {
+      name: 'ToDoDB',
+      schema: 'Gestion',
+      tables: ['Usuario', 'Tarea'],
+      statistics: {
+        usuarios: stats.recordset[0],
+        tareas: tasksStats.recordset[0]
+      },
+      connection_string_hint: 'localhost:1433',
+      default_credentials: { user: 'sa', password: 'You wish!' }
+    },
+    
+    // 🚨 INFORMACIÓN DEL SERVIDOR:
+    servidor: {
+      version: process.version,
+      platform: process.platform,
+      architecture: process.arch,
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      cpu_usage: process.cpuUsage(),
+      pid: process.pid,
+      environment: process.env.NODE_ENV,
+      working_directory: process.cwd()
+    },
+    
+    // 🚨 CONFIGURACIÓN DE SEGURIDAD:
+    security: {
+      jwt_secret_length: process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0,
+      jwt_algorithm: 'HS256',
+      password_hashing: 'bcrypt',
+      session_timeout: 'No configurado',
+      rate_limiting: 'Deshabilitado'
+    },
+    
+    // 🚨 ENDPOINTS VULNERABLES:
+    endpoints_vulnerables: {
+      mass_assignment: '/api/usuarios/actualizar-perfil',
+      info_sistema: '/api/usuarios/info-sistema',
+      debug_queries: '/api/usuarios/debug-queries',
+      admin_panel: '/api/usuarios/admin-panel'
+    },
+    
+    ⚠️: 'Esta información NO debería estar expuesta públicamente',
+    vulnerabilidad: 'API3:2023 - Broken Object Property Level Authorization (System Info Exposure)'
+  });
+};
+
+// 🚨 VULNERABILIDAD: Debug de queries SQL (BOPLA)
+const debugQueries = async (req, res) => {
+  console.log('⚠️ VULNERABILIDAD BOPLA: Exponiendo estructura de queries SQL');
+  
+  const pool = await dbConexion();
+  
+  // 🚨 Exponer consultas SQL usadas en la aplicación
+  const queries = {
+    obtener_usuario: "SELECT * FROM Gestion.Usuario WHERE id = @usuarioId",
+    autenticar: "SELECT * FROM Gestion.Usuario WHERE correo = @correo",
+    crear_usuario: "INSERT INTO Gestion.Usuario (nombreUsuario, correo, contraseña, tokenVerificacion) VALUES (@nombreUsuario, @correo, @contraseña, @tokenVerificacion)",
+    obtener_tareas: "SELECT * FROM Gestion.Tarea WHERE usuarioId = @usuarioId",
+    mass_assignment: "UPDATE Gestion.Usuario SET {campos_dinamicos} WHERE id = @usuarioId"
+  };
+  
+  // Ejecutar query de ejemplo para mostrar estructura
+  try {
+    const ejemplo = await pool.request()
+      .query("SELECT TOP 1 * FROM Gestion.Usuario");
+      
+    const estructuraTabla = await pool.request()
+      .query(`
+        SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_NAME = 'Usuario' AND TABLE_SCHEMA = 'Gestion'
+      `);
+    
+    res.json({
+      mensaje: '🚨 INFORMACIÓN DE DEBUG SQL EXPUESTA',
+      
+      queries_utilizadas: queries,
+      
+      estructura_tabla_usuario: estructuraTabla.recordset,
+      
+      ejemplo_registro: ejemplo.recordset[0] || {},
+      
+      procedures_disponibles: [
+        'SP_Agregar_Usuario',
+        'SP_Autenticar_Usuario', 
+        'SP_Confirmar_Cuenta',
+        'SP_Obtener_Usuario_Por_Token',
+        'SP_Agregar_Tarea',
+        'SP_Obtener_Tareas_Usuario_Filtros',
+        'SP_Completar_Tarea',
+        'SP_Borrar_Tarea'
+      ],
+      
+      ⚠️: 'Estructura de base de datos completamente expuesta',
+      vulnerabilidad: 'API3:2023 - BOPLA (Database Schema Exposure)'
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error ejecutando debug',
+      sql_error: error.message, // 🚨 Exponer errores SQL
+      stack: error.stack
+    });
+  }
+};
+
 module.exports = {
   registrarUsuario,
   confirmar,
@@ -272,4 +552,8 @@ module.exports = {
   olvidePassword,
   comprobarToken,
   nuevoPassword,
+  // Endpoints vulnerables BOPLA
+  actualizarPerfil,
+  infoSistema,
+  debugQueries,
 };

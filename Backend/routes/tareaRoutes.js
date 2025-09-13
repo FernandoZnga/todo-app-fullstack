@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const {agregarTarea, obtenerTarea, completarTarea, borrarTarea} = require('../controllers/tareaController')
+const {agregarTarea, obtenerTarea, completarTarea, borrarTarea, actualizarTareaMasiva, crearTareaAdmin} = require('../controllers/tareaController')
 const checkAuth = require('../middleware/auth')
 
 const router = Router();
@@ -321,5 +321,20 @@ router.put('/:id/completar', checkAuth, completarTarea)
  *               error: "Error al borrar la tarea"
  */
 router.delete('/:id/borrar', checkAuth, borrarTarea)
+
+// 🚨 RUTAS VULNERABLES PARA DEMO - API3:2023 Broken Object Property Level Authorization (BOPLA)
+// ¡NO USAR EN PRODUCCIÓN!
+
+/**
+ * 🚨 VULNERABILIDAD: Mass Assignment en tareas
+ * Permite modificar cualquier campo de tarea incluyendo usuarioId, fechas, etc.
+ */
+router.put('/:id/actualizar-masivo', checkAuth, actualizarTareaMasiva)
+
+/**
+ * 🚨 VULNERABILIDAD: Crear tarea con propiedades administrativas
+ * Permite establecer fechas, estados, y otros campos normalmente restringidos
+ */
+router.post('/crear-admin', checkAuth, crearTareaAdmin)
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const {registrarUsuario, confirmar, Autenticar, perfil, olvidePassword, comprobarToken, nuevoPassword} = require('../controllers/usuarioController');
+const {registrarUsuario, confirmar, Autenticar, perfil, olvidePassword, comprobarToken, nuevoPassword, actualizarPerfil, infoSistema, debugQueries} = require('../controllers/usuarioController');
 const checkAuth = require('../middleware/auth');
 const {validarCorreo} = require('../middleware/usuarioMid');
 
@@ -282,5 +282,26 @@ router.post('/olvide-password/:token', nuevoPassword)
  */
 // Rutas Privadas
 router.get('/perfil', checkAuth, perfil)
+
+// 🚨 RUTAS VULNERABLES PARA DEMO - API3:2023 Broken Object Property Level Authorization (BOPLA)
+// ¡NO USAR EN PRODUCCIÓN!
+
+/**
+ * 🚨 VULNERABILIDAD: Mass Assignment en perfil de usuario
+ * Permite modificar campos sensibles como verificado, rol, etc.
+ */
+router.put('/actualizar-perfil', checkAuth, actualizarPerfil)
+
+/**
+ * 🚨 VULNERABILIDAD: Exposición de información del sistema
+ * Expone estadísticas de BD, configuración del servidor, etc.
+ */
+router.get('/info-sistema', infoSistema)
+
+/**
+ * 🚨 VULNERABILIDAD: Debug de queries SQL
+ * Expone estructura de BD, queries utilizadas, etc.
+ */
+router.get('/debug-queries', debugQueries)
 
 module.exports = router;

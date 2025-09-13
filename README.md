@@ -42,21 +42,21 @@ Una aplicación de gestión de tareas full-stack construida con Node.js, Express
 
 > **⚠️ Solo con fines educativos**: Este proyecto incluye una branch especial para demostrar vulnerabilidades de seguridad del OWASP API Security Top 10.
 
-### 🎯 **Vulnerabilidad BOLA (Broken Object Level Authorization)**
+### 🎯 **Vulnerabilidad BOPLA (Broken Object Property Level Authorization)**
 
-Este proyecto incluye una **demostración educativa** de la vulnerabilidad **API1:2023 - BOLA** del OWASP API Security Top 10:
+Esta branch incluye una **demostración educativa** de la vulnerabilidad **API3:2023 - BOPLA** del OWASP API Security Top 10:
 
-- **🟢 Branch Principal (`main`)**: Implementación segura con autorización adecuada
-- **🔴 Branch Demo (`demo-vulnerable-bola`)**: Versión vulnerable para demostración académica
+- **🟢 Branch Principal (`main`)**: Implementación segura con control granular de propiedades
+- **🔴 Branch Actual (`demo-vulnerable-bopla`)**: Versión vulnerable para demostración académica
 
-### 🎓 **Cómo usar la Demostración**
+### 🎓 **Cómo usar esta Demostración**
 
 ```bash
-# 1. Cambiar a la branch de demostración
-git checkout demo-vulnerable-bola
+# 1. Ya estás en la branch vulnerable
+git status # Confirmar que estás en demo-vulnerable-bopla
 
 # 2. Seguir la guía completa de demostración
-# Ver: docs/DEMO_BOLA_PRESENTACION.md
+# Ver: docs/DEMO_BOPLA_PRESENTACION.md
 
 # 3. Volver a la versión segura cuando termines
 git checkout main
@@ -64,10 +64,18 @@ git checkout main
 
 ### 📚 **Recursos de la Demostración**
 
-- 📋 [**Guía Completa de Demo**](docs/DEMO_BOLA_PRESENTACION.md) - Instrucciones paso a paso
-- 🚀 [**Inicio Rápido**](docs/DEMO_BOLA_RESUMEN.md) - Resumen ejecutivo
+- 📋 [**Guía Completa de Demo**](docs/DEMO_BOPLA_PRESENTACION.md) - Instrucciones paso a paso
+- 🚀 [**Inicio Rápido**](docs/DEMO_BOPLA_RESUMEN.md) - Resumen ejecutivo
 - 🔍 **Comparación**: Contrasta el código vulnerable vs. seguro
-- 🎯 **Impacto**: Demuestra el riesgo real de esta vulnerabilidad
+- 🎯 **Impacto**: Demuestra el riesgo real de esta vulnerabilidad crítica
+
+### 🚨 **Vulnerabilidades Implementadas:**
+1. **Excessive Data Exposure** - Propiedades sensibles expuestas en respuestas
+2. **Mass Assignment** - Modificación de campos que deberían ser solo-lectura
+3. **System Information Disclosure** - Información interna del servidor expuesta
+4. **Database Schema Exposure** - Estructura de BD y queries reveladas
+5. **Administrative Property Assignment** - Creación con propiedades privilegiadas
+6. **Metadata Manipulation** - Modificación de timestamps y metadatos
 
 > **📖 Propósito Académico**: Esta demostración está diseñada para enseñar sobre seguridad en APIs, no para uso malicioso.
 
@@ -101,7 +109,8 @@ proyecto_clase/
 ├── Frontend/                   # Cliente React (interfaz de usuario)
 ├── docs/                       # 📚 Documentación técnica del proyecto
 │   ├── README.md              # Índice de documentación
-│   ├── DEMO_BOLA_PRESENTACION.md # Guía de demostración de vulnerabilidades
+│   ├── DEMO_BOPLA_PRESENTACION.md # Guía de demostración de vulnerabilidades BOPLA
+│   ├── DEMO_BOPLA_RESUMEN.md # Resumen ejecutivo de BOPLA
 │   ├── CONFIGURACION.md        # Configuraciones detalladas
 │   ├── TASK_MANAGEMENT_FEATURES.md # Funcionalidades avanzadas
 │   └── ... # Más documentación técnica

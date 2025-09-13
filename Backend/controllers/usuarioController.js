@@ -264,6 +264,84 @@ const nuevoPassword = async (req, res) => {
   }
 };
 
+// 🚨 VULNERABILIDAD DEMO: API2:2023 - Broken Authentication
+// Endpoints vulnerables para demostración
+// ¡NO USAR EN PRODUCCIÓN!
+
+const { generarTokenBypass } = require("../helpers/generarJWT");
+
+// 🚨 VULNERABILIDAD: Endpoint de bypass de autenticación
+const bypassLogin = async (req, res) => {
+  console.log('⚠️ VULNERABILIDAD: Endpoint de bypass activado');
+  
+  const { userId = 1, isAdmin = false } = req.body;
+  
+  // ¡Cualquier persona puede obtener un token sin validación!
+  const token = generarTokenBypass(userId, isAdmin);
+  
+  res.json({
+    mensaje: '🚨 BYPASS EXITOSO - Token generado sin autenticación',
+    token: token,
+    warning: 'ESTO ES UNA VULNERABILIDAD CRÍTICA'
+  });
+};
+
+// 🚨 VULNERABILIDAD: Endpoint de información sensible
+const infoSensible = (req, res) => {
+  console.log('⚠️ VULNERABILIDAD: Exponiendo información sensible');
+  
+  res.json({
+    servidor: {
+      version: process.version,
+      platform: process.platform,
+      uptime: process.uptime(),
+      env: process.env.NODE_ENV,
+      jwt_secret: process.env.JWT_SECRET || 'secret123', // ¡Expone el secreto!
+      db_credentials: {
+        user: process.env.DB_USER || 'sa',
+        password: '***REDACTED***', // Al menos algo de seguridad
+        server: process.env.DB_SERVER || 'localhost'
+      }
+    },
+    usuarios_demo: [
+      { id: 1, rol: 'admin', hint: 'Usuario administrador de prueba' },
+      { id: 2, rol: 'user', hint: 'Usuario regular de prueba' }
+    ],
+    vulnerabilidades: {
+      bypass_header: 'x-demo-bypass: vulnerable-demo',
+      weak_secret: 'secret123',
+      development_mode: 'x-development-mode: true',
+      skip_validation: 'x-skip-db-validation: true'
+    }
+  });
+};
+
+// 🚨 VULNERABILIDAD: Login con validación débil
+const loginDebil = async (req, res) => {
+  const { correo, contraseña } = req.body;
+  
+  console.log('⚠️ VULNERABILIDAD: Login con validación débil');
+  
+  // 🚨 Acepta passwords débiles conocidas
+  const passwordsDebiles = ['123456', 'password', 'admin', 'test', ''];
+  
+  if (passwordsDebiles.includes(contraseña)) {
+    console.log('⚠️ Password débil aceptada:', contraseña);
+    
+    // Simular usuario sin validar en BD
+    const token = generarTokenBypass(1, true);
+    
+    return res.json({
+      mensaje: '🚨 LOGIN EXITOSO con password débil',
+      token: token,
+      warning: 'Se aceptó una contraseña extremadamente débil'
+    });
+  }
+  
+  // Si no es password débil, usar flujo normal (pero seguirá siendo vulnerable)
+  return Autenticar(req, res);
+};
+
 module.exports = {
   registrarUsuario,
   confirmar,
@@ -272,4 +350,8 @@ module.exports = {
   olvidePassword,
   comprobarToken,
   nuevoPassword,
+  // Endpoints vulnerables para demo
+  bypassLogin,
+  infoSensible,
+  loginDebil,
 };

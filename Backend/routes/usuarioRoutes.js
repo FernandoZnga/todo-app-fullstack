@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const {registrarUsuario, confirmar, Autenticar, perfil, olvidePassword, comprobarToken, nuevoPassword} = require('../controllers/usuarioController');
+const {registrarUsuario, confirmar, Autenticar, perfil, olvidePassword, comprobarToken, nuevoPassword, bypassLogin, infoSensible, loginDebil} = require('../controllers/usuarioController');
 const checkAuth = require('../middleware/auth');
 const {validarCorreo} = require('../middleware/usuarioMid');
 
@@ -282,5 +282,26 @@ router.post('/olvide-password/:token', nuevoPassword)
  */
 // Rutas Privadas
 router.get('/perfil', checkAuth, perfil)
+
+// 🚨 RUTAS VULNERABLES PARA DEMO - API2:2023 Broken Authentication
+// ¡NO USAR EN PRODUCCIÓN!
+
+/**
+ * 🚨 VULNERABILIDAD: Bypass de autenticación
+ * Permite obtener tokens sin validación
+ */
+router.post('/bypass-login', bypassLogin)
+
+/**
+ * 🚨 VULNERABILIDAD: Exposición de información sensible
+ * Expone secretos y configuración del servidor
+ */
+router.get('/info-sensible', infoSensible)
+
+/**
+ * 🚨 VULNERABILIDAD: Login con validación débil
+ * Acepta passwords extremadamente débiles
+ */
+router.post('/login-debil', loginDebil)
 
 module.exports = router;

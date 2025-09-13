@@ -40,23 +40,23 @@ Una aplicación de gestión de tareas full-stack construida con Node.js, Express
 
 ## 🚨 Demostración de Vulnerabilidades OWASP (Académica)
 
-> **⚠️ Solo con fines educativos**: Este proyecto incluye una branch especial para demostrar vulnerabilidades de seguridad del OWASP API Security Top 10.
+> **⚠️ Solo con fines educativos**: Esta branch demuestra vulnerabilidades de seguridad del OWASP API Security Top 10.
 
-### 🎯 **Vulnerabilidad BOLA (Broken Object Level Authorization)**
+### 🎯 **Vulnerabilidad Broken Authentication (Autenticación Rota)**
 
-Este proyecto incluye una **demostración educativa** de la vulnerabilidad **API1:2023 - BOLA** del OWASP API Security Top 10:
+Esta branch incluye una **demostración educativa** de la vulnerabilidad **API2:2023 - Broken Authentication** del OWASP API Security Top 10:
 
-- **🟢 Branch Principal (`main`)**: Implementación segura con autorización adecuada
-- **🔴 Branch Demo (`demo-vulnerable-bola`)**: Versión vulnerable para demostración académica
+- **🟢 Branch Principal (`main`)**: Implementación segura con autenticación robusta
+- **🔴 Branch Actual (`demo-vulnerable-broken-auth`)**: Versión vulnerable para demostración académica
 
-### 🎓 **Cómo usar la Demostración**
+### 🎓 **Cómo usar esta Demostración**
 
 ```bash
-# 1. Cambiar a la branch de demostración
-git checkout demo-vulnerable-bola
+# 1. Ya estás en la branch vulnerable
+git status # Confirmar que estás en demo-vulnerable-broken-auth
 
 # 2. Seguir la guía completa de demostración
-# Ver: docs/DEMO_BOLA_PRESENTACION.md
+# Ver: docs/DEMO_BROKEN_AUTH_PRESENTACION.md
 
 # 3. Volver a la versión segura cuando termines
 git checkout main
@@ -64,10 +64,18 @@ git checkout main
 
 ### 📚 **Recursos de la Demostración**
 
-- 📋 [**Guía Completa de Demo**](docs/DEMO_BOLA_PRESENTACION.md) - Instrucciones paso a paso
-- 🚀 [**Inicio Rápido**](docs/DEMO_BOLA_RESUMEN.md) - Resumen ejecutivo
+- 📋 [**Guía Completa de Demo**](docs/DEMO_BROKEN_AUTH_PRESENTACION.md) - Instrucciones paso a paso
+- 🚀 [**Inicio Rápido**](docs/DEMO_BROKEN_AUTH_RESUMEN.md) - Resumen ejecutivo
 - 🔍 **Comparación**: Contrasta el código vulnerable vs. seguro
-- 🎯 **Impacto**: Demuestra el riesgo real de esta vulnerabilidad
+- 🎯 **Impacto**: Demuestra el riesgo real de esta vulnerabilidad crítica
+
+### 🚨 **Vulnerabilidades Implementadas:**
+1. **Bypass Completo** - Tokens sin validación de credenciales
+2. **Headers Mágicos** - Bypass mediante headers especiales
+3. **JWT Inseguros** - Secretos débiles y sin expiración
+4. **Passwords Débiles** - Acepta contraseñas triviales
+5. **Información Sensible Expuesta** - Secretos en endpoints públicos
+6. **Modo Development Inseguro** - Backdoors accidentales
 
 > **📖 Propósito Académico**: Esta demostración está diseñada para enseñar sobre seguridad en APIs, no para uso malicioso.
 
@@ -101,7 +109,8 @@ proyecto_clase/
 ├── Frontend/                   # Cliente React (interfaz de usuario)
 ├── docs/                       # 📚 Documentación técnica del proyecto
 │   ├── README.md              # Índice de documentación
-│   ├── DEMO_BOLA_PRESENTACION.md # Guía de demostración de vulnerabilidades
+│   ├── DEMO_BROKEN_AUTH_PRESENTACION.md # Guía de demostración de vulnerabilidades
+│   ├── DEMO_BROKEN_AUTH_RESUMEN.md # Resumen de vulnerabilidades
 │   ├── CONFIGURACION.md        # Configuraciones detalladas
 │   ├── TASK_MANAGEMENT_FEATURES.md # Funcionalidades avanzadas
 │   └── ... # Más documentación técnica

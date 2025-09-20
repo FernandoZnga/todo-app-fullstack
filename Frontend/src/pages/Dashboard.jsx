@@ -10,6 +10,7 @@ import TaskDetailsModal from '../components/TaskDetailsModal'
 const Dashboard = () => {
   const { user } = useAuth()
   const [tasks, setTasks] = useState([])
+  const [allTasks, setAllTasks] = useState([]) // Todas las tareas para estadísticas
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newTask, setNewTask] = useState({ titulo: '', descripcion: '' })
@@ -50,6 +51,11 @@ const Dashboard = () => {
       setLoading(true)
       const response = await tasksService.getTasks(filter)
       setTasks(response.tareas || [])
+      
+      // Cargar todas las tareas (incluyendo borradas) para el contador
+      const allTasksResponse = await tasksService.getTasks('all_including_deleted')
+      setAllTasks(allTasksResponse.tareas || [])
+      
       setActiveDropdown(null) // Close any open dropdowns
     } catch (error) {
       console.error('Error loading tasks:', error)
@@ -120,7 +126,7 @@ const Dashboard = () => {
   }
 
   const handleTaskUpdated = () => {
-    loadTasks()
+    loadTasks() // Esto ya recarga tanto las tareas filtradas como todas las tareas para estadísticas
   }
 
   // Client-side search filtering (backend handles state filtering)
@@ -130,15 +136,14 @@ const Dashboard = () => {
     return matchesSearch
   })
 
-  // Calculate stats for all tasks (not filtered)
+  // Calculate stats using the full dataset of tasks
   const getTaskStats = () => {
-    // For stats, we need all tasks regardless of current filter
-    const allTasksForStats = filter === 'all' || filter === 'all_including_deleted' ? tasks : []
+    // Usamos allTasks para las estadísticas independientemente del filtro actual
     return {
-      completed: allTasksForStats.filter(t => t.completada && !t.borrada).length,
-      pending: allTasksForStats.filter(t => !t.completada && !t.borrada).length,
-      deleted: allTasksForStats.filter(t => t.borrada).length,
-      total: allTasksForStats.length
+      completed: allTasks.filter(t => t.completada && !t.borrada).length,
+      pending: allTasks.filter(t => !t.completada && !t.borrada).length,
+      deleted: allTasks.filter(t => t.borrada).length,
+      total: allTasks.length
     }
   }
 

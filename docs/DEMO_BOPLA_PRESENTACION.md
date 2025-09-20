@@ -86,7 +86,6 @@ curl -X GET http://localhost:3000/api/usuarios/perfil \
 
 **⚠️ Resultado Esperado:** 
 - Contraseña hasheada expuesta
-- Token de verificación visible  
 - Metadatos internos del sistema
 - Información de debugging
 - Configuración del servidor
@@ -100,9 +99,7 @@ curl -X PUT http://localhost:3000/api/usuarios/actualizar-perfil \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
     "nombreUsuario": "Hacker Admin",
-    "verificado": true,
-    "role_level": "admin",
-    "is_admin": true
+    "verificado": true
   }'
 ```
 

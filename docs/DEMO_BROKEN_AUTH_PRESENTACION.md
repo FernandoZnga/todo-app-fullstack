@@ -1,7 +1,7 @@
 # 🚨 OWASP API2:2023 - Autenticación Rota (Broken Authentication)
 ## Guía de Demostración de Vulnerabilidad
 
-> **Presentador:** Fernando  
+> **Presentador:** Grupo Maestría en Ciberseguridad  
 > **Tema:** Seguridad de APIs - Vulnerabilidad de Autenticación Rota y Mitigación  
 > **Audiencia:** Presentación en Clase  
 

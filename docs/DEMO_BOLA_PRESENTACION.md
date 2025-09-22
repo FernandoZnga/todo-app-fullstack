@@ -1,7 +1,7 @@
 # 🚨 OWASP API1:2023 - Autorización Rota a Nivel de Objeto (BOLA) 
 ## Guía de Demostración de Vulnerabilidad
 
-> **Presentador:** Fernando  
+> **Presentador:** Grupo Maestría en Ciberseguridad  
 > **Tema:** Seguridad de APIs - Vulnerabilidad BOLA y Mitigación  
 > **Audiencia:** Presentación en Clase  
 

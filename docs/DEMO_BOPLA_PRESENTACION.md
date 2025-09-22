@@ -1,7 +1,7 @@
 # 🚨 OWASP API3:2023 - Broken Object Property Level Authorization (BOPLA)
 ## Guía de Demostración de Vulnerabilidad
 
-> **Presentador:** Fernando  
+> **Presentador:** Grupo Maestría en Ciberseguridad  
 > **Tema:** Seguridad de APIs - Vulnerabilidad BOPLA y Mitigación  
 > **Audiencia:** Presentación en Clase  
 
